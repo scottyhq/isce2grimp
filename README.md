@@ -6,7 +6,7 @@ ISCE Processing for GIMP
 This code is designed to run on APL servers. To install, you need access to the private isce2gimp respository and a [GitHub personal access token (PAT)](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 
 ```
-git clone https://github.com/scottyhq/isce2gimp.git
+git clone git@github.com:scottyhq/isce2gimp.git
 conda env create
 conda activate isce2gimp
 ```
@@ -37,6 +37,7 @@ clean_isce -i 90-227-13416-24487
 ## Develop
 
 ```
+conda create --name isce2gimp --file conda-linux.lock
 poetry install
 poetry run pytest -o markers=network
 ```
