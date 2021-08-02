@@ -1,0 +1,16 @@
+name: isce2gimp
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - geopandas
+  - isce2=2.5.2
+  - ipython
+  - numpy
+  - pip
+  - poetry
+  - poetry-dynamic-versioning
+  - pyproj
+  - scipy
+  - pip:
+    - dinosar

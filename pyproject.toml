@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "isce2gimp"
+version = "0.0.1"
+description = "InSAR Phase Processing for Greenland Ice Measures Project"
+authors = ["Scott Henderson <scotty@uw.edu>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/scottyhq/isce2gimp"
+repository = "https://github.com/scottyhq/isce2gimp"
+keywords = ["SAR","ISCE"]
+
+[tool.poetry.scripts]
+prep_isce = 'isce2gimp.cli.prep_isce:main'
+convert_isce = 'isce2gimp.cli.convert_isce:main'
+clean_isce = 'isce2gimp.cli.clean_isce:main'
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.3"
+dunamai = "^1.0"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "semver"
+
+[build-system]
+requires = ["poetry>=1.0"]
+build-backend = "poetry.masonry.api"
