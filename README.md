@@ -7,6 +7,7 @@ This code is designed to run on APL servers. To install, you need access to the 
 
 ```
 git clone git@github.com:scottyhq/isce2gimp.git
+cd isce2gimp
 conda env create
 conda activate isce2gimp
 ```
@@ -37,6 +38,7 @@ clean_isce -i 90-227-13416-24487
 ## Develop
 
 ```
+# Use a lock file for conda environment
 conda create --name isce2gimp --file conda-linux.lock
 poetry install
 poetry run pytest -o markers=network
