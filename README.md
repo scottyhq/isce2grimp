@@ -29,7 +29,7 @@ prep_isce -p 90 -f 227 -y 2018 -m 11
 run_isce -i 90-227-13416-24487
 
 # convert existing isce output
-convert_isce -c -i 90-227-13416-24487 -o 90-227-13416-24487-out
+convert_isce -i 90-227-13416-24487 -o 90-227-13416-24487-out
 
 # clean up after ourselves
 clean_isce -i 90-227-13416-24487
@@ -42,4 +42,14 @@ clean_isce -i 90-227-13416-24487
 conda create --name isce2gimp --file conda-linux.lock
 poetry install
 poetry run pytest -o markers=network
+```
+
+## Notes
+
+#### To run ISCE scripts such as mdx.py for visualizing results, first update the system $PATH 
+```
+export ISCE_HOME=/home/ian/miniconda3/envs/isce2gimp/lib/python3.9/site-packages/isce
+export PATH=$PATH:${ISCE_HOME}/bin:${ISCE_HOME}/applications
+
+mdx.py filt_topophase.unw
 ```
