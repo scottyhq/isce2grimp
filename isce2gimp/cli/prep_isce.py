@@ -10,7 +10,7 @@ Aux file
 Example
 -------
 Relative Orbit 90, ASF frame 227, Absolute orbites in 2018-11:
-$ isce2gimp.py -p 90 -f 227 -r 13416 -s 24487
+$ prep_isce -p 90 -f 227 -y 2018 -m 11 -r 13416 -s 24487
 
 Author: Scott Henderson (scottyh@uw.edu)
 Updated: 07/2021
@@ -35,10 +35,10 @@ def cmdLineParse():
         "-m", type=int, dest="month", required=True, help="month"
     )
     parser.add_argument(
-        "-r", type=str, dest="reference", required=False, help="reference date"
+        "-r", type=str, dest="reference", required=False, help="reference absolute orbit"
     )
     parser.add_argument(
-        "-s", type=str, dest="secondary", required=False, help="secondary date"
+        "-s", type=str, dest="secondary", required=False, help="secondary absolute orbit"
     )
     parser.add_argument(
         "-p",
