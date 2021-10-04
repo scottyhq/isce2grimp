@@ -108,7 +108,7 @@ def get_statevecs(mergedOrbit):
 
     nvecs = len(mergedOrbit._stateVectors)
     svt0 = DTU.seconds_since_midnight(
-                            mergedOrbit._stateVectors.statevector1.getTime())
+                            mergedOrbit._stateVectors[0].getTime())
     sv_list = []
     for sv in mergedOrbit._stateVectors:
         sv_list.append('{0:.6E} {1:.6E} {2:.6E}'.format(*sv.getPosition()))
