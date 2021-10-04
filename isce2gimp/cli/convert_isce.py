@@ -65,8 +65,9 @@ def get_ascNodeTime():
     # self.reference.product.ascendingNodeTime not showing up in python :(
     cmd = 'grep reference.sensor.ascendingnodetime isce.log | cut -d "=" -f2'
     r = run(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
+    result = r.stdout.split('\n')[0].strip() # get rid of extra occurances from restarts
     fmt = "%Y-%m-%d %H:%M:%S.%f"
-    ascNodeTime = datetime.datetime.strptime(r.stdout.strip(), fmt)
+    ascNodeTime = datetime.datetime.strptime(result, fmt)
     with open('ascendingNodeTime', 'w') as f:
         f.write(ascNodeTime.strftime("%Y-%m-%dT%H:%M:%S.%f"))
 
