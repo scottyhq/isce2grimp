@@ -19,6 +19,8 @@ import argparse
 import os
 from dinosar.archive import asf
 import dinosar.isce as dice
+import datetime
+import pandas as pd
 
 import isce2gimp
 packageDir = os.path.dirname(os.path.dirname(isce2gimp.__file__))
@@ -27,10 +29,10 @@ def cmdLineParse():
     """Command line parser."""
     parser = argparse.ArgumentParser(description="prepare ISCE 2.5.2 topsApp.py")
     parser.add_argument(
-        "-y", type=str, dest="year", required=True, help="year"
+        "-y", type=int, dest="year", required=True, help="year"
     )
     parser.add_argument(
-        "-m", type=str, dest="month", required=True, help="month"
+        "-m", type=int, dest="month", required=True, help="month"
     )
     parser.add_argument(
         "-r", type=str, dest="reference", required=False, help="reference date"
@@ -59,13 +61,24 @@ def cmdLineParse():
     return parser
 
 
+def load_two_months(year, month):
+    """ load requested month and requested month+1 of inventory"""
+    inventoryFile = os.path.join(packageDir,'data',f'query_{year}_{month}.json')
+    gf1 = asf.load_asf_json(inventoryFile)
+    new = datetime.date(year,month,1) + datetime.timedelta(days=31)
+    inventoryFile = os.path.join(packageDir,'data',f'query_{new.year}_{new.month}.json')
+    gf2 = asf.load_asf_json(inventoryFile)
+    gf = pd.concat([gf1, gf2])
+    gf.reset_index(inplace=True)
+    return gf
+
+
 def main():
     """Run as a script with args coming from argparse."""
     parser = cmdLineParse()
     inps = parser.parse_args()
 
-    inventoryFile = os.path.join(packageDir,'data',f'query_{inps.year}_{inps.month}.json')
-    gf = asf.load_asf_json(inventoryFile)
+    gf = load_two_months(inps.year, inps.month)
     gf = gf.query('track==@inps.path and frameNumber==@inps.frame').sort_values('timeStamp')
     print(gf.loc[:,['timeStamp','absoluteOrbit']])
 
