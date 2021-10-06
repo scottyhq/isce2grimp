@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 '''
-Download json files for Sentinel-1 Archive metadata over greenland
+Download json inventory for ASF Sentinel-1 archive with greenland.geojson 
 
 Usage: ./get_asf_inventory.py
-
-Will loop over years and months from 2014-10, search and download if local file does not exist
-uses greenland.geojson for search polygon
 '''
 
 import requests
 from datetime import date
 import geopandas as gpd
 import os
+import shapely
 
 today = date.today()
 print("Updating inventory through ", today)
@@ -60,31 +58,45 @@ def query_asf(
         data["flightDirection"] = flightDirection
 
     r = requests.get(baseurl, params=data, timeout=100)
-    #print(r.url)
-    # Save Directly to dataframe
-    # df = pd.DataFrame(r.json()[0])
-    with open(outfile, "w") as j:
-        j.write(r.text)
+    
+    return r.json()
+
+
+def asfjson2geopandas(json):
+    df = gpd.pd.DataFrame(json[0])
+    polygons = df.stringFootprint.apply(shapely.wkt.loads)
+    gf = gpd.GeoDataFrame(df, crs="EPSG:4326", geometry=polygons)
+    gf.sort_values(by='sceneDate', inplace=True) #ascending head to tail
+
+    return gf
+
+
+def get_last_date():
+    # last row will be most recent date
+    gf = gpd.read_file('asf_inventory.gpkg', rows=slice(-1,None))
+    date = gf.sceneDate.values[0]
+    # Add one second to avoid getting repeats
+    datestr = str(gpd.pd.to_datetime(date) + gpd.pd.Timedelta(seconds=1))
+
+    return datestr
 
 
 
 def main():
-    # start of every month datetimeIndex
-    DI = gpd.pd.date_range(start='2014-10-01', end=today, freq='MS')
+    if os.path.isfile('asf_inventory.gpkg'):
+       start = get_last_date()
+    else:
+       start=None    
     
-    for i in range(len(DI)):
-        start = DI[i].strftime('%Y-%m-%d')
-        
-        if i == len(DI)-1:
-            end = today.strftime('%Y-%m-%d')
-        else:
-            end = DI[i+1].strftime('%Y-%m-%d')
-        
-        outfile = f'query_{DI[i].year}_{DI[i].month}.json'
-        if not os.path.exists(outfile):
-            query_asf(start=start, stop=end, outfile=outfile)
-        else:
-            print(f'{outfile} already exists... skipping search')
+    end = today.strftime('%Y-%m-%d')
+    response = query_asf(start=start, stop=end)
+    gf = asfjson2geopandas(response)
+    
+    if os.path.isfile('asf_inventory.gpkg'):
+       mode = 'a'
+    else:
+       mode = 'w'
+    gf.to_file('asf_inventory.gpkg', driver='GPKG', mode=mode)
 
 if __name__ == "__main__":
     main() 
