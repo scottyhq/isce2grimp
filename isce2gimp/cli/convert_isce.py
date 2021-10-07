@@ -212,8 +212,8 @@ def get_corner_coordinates(self, frames, orbit):
     if frames[0].bursts[0].passDirection == 'ASCENDING':
         ll = '{0:.6f} {1:.6f}'.format(*earlyNear)
         lr = '{0:.6f} {1:.6f}'.format(*earlyFar)
-        ul = '{0:.6f} {1:.6f}'.format(*lateFar)
-        ur = '{0:.6f} {1:.6f}'.format(*lateNear)
+        ur = '{0:.6f} {1:.6f}'.format(*lateFar)
+        ul = '{0:.6f} {1:.6f}'.format(*lateNear)
     else:
         ur = '{0:.6f} {1:.6f}'.format(*earlyNear)
         ul = '{0:.6f} {1:.6f}'.format(*earlyFar)
