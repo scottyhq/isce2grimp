@@ -24,13 +24,11 @@ def test_prep_pair(tmpdir):
         assert os.path.isfile(f'{outdir}/download-links.txt')
         assert os.path.isfile(f'{outdir}/topsApp.xml')
 
-@pytest.mark.skip
 def test_prep_stack(tmpdir):
     with run_in(tmpdir):
-        os.system('prep_stack -p 90 -f 227 -r 13416')
-        outdir = "90-227-13416-24487"
-        assert os.path.isdir(outdir)
-        assert os.path.isfile(f'{outdir}/download-links.txt')
-        assert os.path.isfile(f'{outdir}/topsApp.xml')
+        os.system('prep_stack -p 90 -f 227 -r 13416 -n 3')
+        outdirs = ["90-227-13416-24487", "90-227-24487-13591", "90-227-13591-24662"]
+        for outdir in outdirs:
+            assert os.path.isdir(outdir)
 
 
