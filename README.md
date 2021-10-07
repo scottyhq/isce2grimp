@@ -28,7 +28,10 @@ update_inventory
 prep_pair -p 90 -f 227 -r 13416 -s 24487 
 
 # Sequence of 'n' pairs starting with reference orbit
-prep_stack -p 90 -f 227 -r 13416 -n 4
+prep_stack -p 90 -f 227 -r 13416 -n 3
+# NOTE: after running prep_stack, download shared zip files:
+cd tmp-data-90
+wget -nc -c -i download-links.txt
 
 # RUN ISCE (in ifg folder created by prep_isce 90-227-13416-24487
 run_isce -i 90-227-13416-24487

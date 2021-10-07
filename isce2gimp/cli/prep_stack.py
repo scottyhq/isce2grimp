@@ -53,7 +53,7 @@ def cmdLineParse():
 
 def create_proc_dir(gf, inps):
     # create temporary download directory
-    tmpData = f'./tmp-data-{inps.path}'
+    tmpData = f'tmp-data-{inps.path}'
     if not os.path.isdir(tmpData):
         os.mkdir(tmpData)
         urls=[]
@@ -76,8 +76,8 @@ def create_proc_dir(gf, inps):
     reference_url = gf.query('absoluteOrbit == @inps.reference').downloadUrl.iloc[0]
     secondary_url = gf.query('absoluteOrbit == @inps.secondary').downloadUrl.iloc[0]
     downloadList = [reference_url,secondary_url]
-    inps.reference_scenes = os.path.basename(reference_url)
-    inps.secondary_scenes = os.path.basename(secondary_url)
+    inps.reference_scenes = f'../{tmpData}/{os.path.basename(reference_url)}'
+    inps.secondary_scenes = f'../{tmpData}/{os.path.basename(secondary_url)}'
 
     # Update input dictionary with argparse inputs
     inputDict["topsinsar"]["reference"]["safe"] = inps.reference_scenes
