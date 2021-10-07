@@ -10,7 +10,9 @@ repository = "https://github.com/scottyhq/isce2gimp"
 keywords = ["SAR","ISCE"]
 
 [tool.poetry.scripts]
-prep_isce = 'isce2gimp.cli.prep_isce:main'
+update_inventory = 'isce2gimp.cli.update_inventory:main'
+prep_pair = 'isce2gimp.cli.prep_pair:main'
+prep_stack = 'isce2gimp.cli.prep_stack:main'
 convert_isce = 'isce2gimp.cli.convert_isce:main'
 run_isce = 'isce2gimp.cli.run_isce:main'
 clean_isce = 'isce2gimp.cli.clean_isce:main'
