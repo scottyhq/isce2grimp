@@ -10,9 +10,13 @@ from datetime import date
 import geopandas as gpd
 import os
 import shapely
+from pathlib import Path
 
-today = date.today()
-print("Updating inventory through ", today)
+ROOTDIR = Path(__file__).parent.parent
+INVENTORY = os.path.join(ROOTDIR, 'data', 'asf_inventory.gpkg')
+TODAY = date.today()
+
+print(f"Updating {INVENTORY} through {TODAY}")
 
 def query_asf(
     sat="Sentinel-1",
@@ -36,7 +40,7 @@ def query_asf(
 
     """
     print(f"Querying ASF Vertex between {start} and {stop}...")
-    gf = gpd.read_file('greenland.json')
+    gf = gpd.read_file(os.path.join(ROOTDIR,'data','greenland.json'))
     polygonWKT = gf.geometry[0].wkt
 
     baseurl = "https://api.daac.asf.alaska.edu/services/search/param"
@@ -58,7 +62,7 @@ def query_asf(
         data["flightDirection"] = flightDirection
 
     r = requests.get(baseurl, params=data, timeout=100)
-    
+    #print(r.status_code)    
     return r.json()
 
 
@@ -73,7 +77,7 @@ def asfjson2geopandas(json):
 
 def get_last_date():
     # last row will be most recent date
-    gf = gpd.read_file('asf_inventory.gpkg', rows=slice(-1,None))
+    gf = gpd.read_file(INVENTORY, rows=slice(-1,None))
     date = gf.sceneDate.values[0]
     # Add one second to avoid getting repeats
     datestr = str(gpd.pd.to_datetime(date) + gpd.pd.Timedelta(seconds=1))
@@ -83,20 +87,27 @@ def get_last_date():
 
 
 def main():
-    if os.path.isfile('asf_inventory.gpkg'):
+    if os.path.isfile(INVENTORY):
        start = get_last_date()
     else:
-       start=None    
+       start = None    
     
-    end = today.strftime('%Y-%m-%d')
+    end = TODAY.strftime('%Y-%m-%d')
     response = query_asf(start=start, stop=end)
-    gf = asfjson2geopandas(response)
     
-    if os.path.isfile('asf_inventory.gpkg'):
-       mode = 'a'
+    if len(response[0]) == 0:
+        print('Did not find new scenes')
     else:
-       mode = 'w'
-    gf.to_file('asf_inventory.gpkg', driver='GPKG', mode=mode)
+        gf = asfjson2geopandas(response)
+        nscenes = len(gf)
+        print(f'found {nscenes} scenes')
+        
+        if os.path.isfile(INVENTORY):
+            mode = 'a'
+        else:
+            mode = 'w'
+        
+        gf.to_file(INVENTORY, driver='GPKG', mode=mode)
 
 if __name__ == "__main__":
     main() 

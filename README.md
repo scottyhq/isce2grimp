@@ -20,10 +20,15 @@ At a minimum the following inputs are necessary. default is to re-download SLCs,
 dem and other settings specified in template.yml
 
 ```
-# prep_isce -p RELORB -f FRAME_ID -y YEAR -m MONTH -r [REFERENCE_ABSORB] -s [SECONDARY_ABSORB] 
-* NOTE: relies on ASF metadata being pre-dowloaded. Go to ./isce2gimp/data and run `get_inventory_asf.py`
-# NOTE: if -r and -s not specified, the earliest sequential acquisitions in inventory will be used
-prep_isce -p 90 -f 227 -y 2018 -m 11
+# Periodically update the sentinel1 inventory from ASF
+update_inventory
+
+# Single self-contained pair w/ download links in folder
+# prep_isce -p RELORB -f FRAME_ID -r [REFERENCE_ABSORB] -s [SECONDARY_ABSORB] 
+prep_pair -p 90 -f 227 -r 13416 -s 24487 
+
+# Sequence of 'n' pairs starting with reference orbit
+prep_stack -p 90 -f 227 -r 13416 -n 4
 
 # RUN ISCE (in ifg folder created by prep_isce 90-227-13416-24487
 run_isce -i 90-227-13416-24487
@@ -37,12 +42,35 @@ clean_isce -i 90-227-13416-24487
 
 ## Develop
 
+Follow these instructions if you want to make changes to the code
+
+Work on a new 'feature' branch from current main branch
 ```
-# Use a lock file for conda environment
+cd isce2gimp
+git checkout main
+git pull
+git checkout -b newfeature
+```
+
+```
+# Use a lock file to recreate the exact conda environment
 conda create --name isce2gimp --file conda-linux.lock
+# Install development version of current branch
 poetry install
+```
+
+run tests
+```
 poetry run pytest -o markers=network
 ```
+
+push changes on new branch to github, create a pull request to merge into 'main' branch
+```
+git add [newfiles]
+git commit -m "some new things"
+git push
+```
+
 
 ## Notes
 

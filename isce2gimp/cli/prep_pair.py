@@ -10,7 +10,7 @@ Aux file
 Example
 -------
 Relative Orbit 90, ASF frame 227, Absolute orbites in 2018-11:
-$ prep_isce -p 90 -f 227 -y 2018 -m 11 -r 13416 -s 24487
+$ prep_pair -p 90 -f 227 -r 13416 -s 24487
 
 Author: Scott Henderson (scottyh@uw.edu)
 Updated: 07/2021
@@ -20,25 +20,21 @@ import os
 from dinosar.archive import asf
 import dinosar.isce as dice
 import datetime
-import pandas as pd
+import geopandas as gpd
+from pathlib import Path
 
-import isce2gimp
-packageDir = os.path.dirname(os.path.dirname(isce2gimp.__file__))
+ROOTDIR = Path(__file__).parent.parent
+INVENTORY = os.path.join(ROOTDIR, 'data', 'asf_inventory.gpkg')
+TEMPLATE = os.path.join(ROOTDIR, 'data', 'template.yml')
 
 def cmdLineParse():
     """Command line parser."""
     parser = argparse.ArgumentParser(description="prepare ISCE 2.5.2 topsApp.py")
     parser.add_argument(
-        "-y", type=int, dest="year", required=True, help="year"
+        "-r", type=str, dest="reference", required=True, help="reference absolute orbit"
     )
     parser.add_argument(
-        "-m", type=int, dest="month", required=True, help="month"
-    )
-    parser.add_argument(
-        "-r", type=str, dest="reference", required=False, help="reference absolute orbit"
-    )
-    parser.add_argument(
-        "-s", type=str, dest="secondary", required=False, help="secondary absolute orbit"
+        "-s", type=str, dest="secondary", required=True, help="secondary absolute orbit"
     )
     parser.add_argument(
         "-p",
@@ -61,40 +57,27 @@ def cmdLineParse():
     return parser
 
 
-def load_two_months(year, month):
-    """ load requested month and requested month+1 of inventory"""
-    inventoryFile = os.path.join(packageDir,'data',f'query_{year}_{month}.json')
-    gf1 = asf.load_asf_json(inventoryFile)
-    new = datetime.date(year,month,1) + datetime.timedelta(days=31)
-    inventoryFile = os.path.join(packageDir,'data',f'query_{new.year}_{new.month}.json')
-    gf2 = asf.load_asf_json(inventoryFile)
-    gf = pd.concat([gf1, gf2])
-    gf.reset_index(inplace=True)
-    return gf
-
 
 def main():
     """Run as a script with args coming from argparse."""
     parser = cmdLineParse()
     inps = parser.parse_args()
 
-    gf = load_two_months(inps.year, inps.month)
-    gf = gf.query('track==@inps.path and frameNumber==@inps.frame').sort_values('timeStamp')
-    print(gf.loc[:,['timeStamp','absoluteOrbit']])
+    gf = gpd.read_file(INVENTORY)
+    gf = gf.query('track==@inps.path and frameNumber==@inps.frame')
+    print(gf.loc[:,['sceneDate','absoluteOrbit']])
 
-    templateFile = os.path.join(packageDir,'template.yml')
-    print(f"Reading from template file: {templateFile}...")
-    inputDict = dice.read_yaml_template(templateFile)
-
-    if not inps.reference:
-        inps.reference = gf.absoluteOrbit.iloc[0]
-    if not inps.secondary:
-        inps.secondary = gf.absoluteOrbit.iloc[1]
+    print(f"Reading from template file: {TEMPLATE}...")
+    inputDict = dice.read_yaml_template(TEMPLATE)
 
     # interferogram naming scheme: TRACK-FRAME-REFABS-SECABS
     intdir = f"{inps.path}-{inps.frame}-{inps.reference}-{inps.secondary}"
-    if not os.path.isdir(intdir):
-        os.mkdir(intdir)
+    
+    if os.path.isdir(intdir):
+        print(f'{intdir} already exists, remove it and rerun if you really want to')
+        return
+
+    os.mkdir(intdir)
     os.chdir(intdir)
 
     refDate = gf.query('absoluteOrbit == @inps.reference').sceneDateString.iloc[0]
@@ -106,18 +89,6 @@ def main():
     downloadList = [reference_url,secondary_url]
     inps.reference_scenes = os.path.basename(reference_url)
     inps.secondary_scenes = os.path.basename(secondary_url)
-
-    # NOTE: use locally stored orbits, instead of downloading
-    #try:
-    #    frame = os.path.basename(inps.reference_scenes)
-    #    downloadList.append(asf.get_orbit_url(frame))
-    #    frame = os.path.basename(inps.secondary_scenes)
-    #    downloadList.append(asf.get_orbit_url(frame))
-    #except Exception as e:
-    #    print("Trouble downloading POEORB... maybe scene is too recent?")
-    #    print("Falling back to using header orbits")
-    #    print(e)
-    #    pass
 
     # Update input dictionary with argparse inputs
     inputDict["topsinsar"]["reference"]["safe"] = inps.reference_scenes
