@@ -9,7 +9,7 @@ Aux file
 
 Example
 -------
-Relative Orbit 90, ASF frame 227, Absolute orbites in 2018-11:
+Relative Orbit 90, ASF frame 227, Absolute orbits in 2018-11:
 $ prep_pair -p 90 -f 227 -r 13416 -s 24487
 
 Author: Scott Henderson (scottyh@uw.edu)
@@ -31,14 +31,14 @@ def cmdLineParse():
     """Command line parser."""
     parser = argparse.ArgumentParser(description="prepare ISCE 2.5.2 topsApp.py")
     parser.add_argument(
-        "-r", type=str, dest="reference", required=True, help="reference absolute orbit"
+        "-r", type=int, dest="reference", required=True, help="reference absolute orbit"
     )
     parser.add_argument(
-        "-s", type=str, dest="secondary", required=True, help="secondary absolute orbit"
+        "-s", type=int, dest="secondary", required=True, help="secondary absolute orbit"
     )
     parser.add_argument(
         "-p",
-        type=str,
+        type=int,
         dest="path",
         required=True,
         help="Path/Track/RelativeOrbit Number",
@@ -52,7 +52,7 @@ def cmdLineParse():
         help="Path to YAML input template file",
     )
     parser.add_argument(
-        "-f", type=str, dest="frame", required=True, help="ASF Frame"
+        "-f", type=int, dest="frame", required=True, help="ASF Frame"
     )
 
     return parser
@@ -64,9 +64,9 @@ def main():
     parser = cmdLineParse()
     inps = parser.parse_args()
 
-    gf = gpd.read_file(INVENTORY)
-    gf = gf.query('track==@inps.path and frameNumber==@inps.frame')
-    print(gf.loc[:,['sceneDate','absoluteOrbit']])
+    gf = gpd.read_file(INVENTORY, layer=str(inps.path))
+    gf = gf.query('frameNumber == @inps.frame')
+    #print(gf.loc[:,['startTime','orbit']])
 
     print(f"Reading from template file: {inps.template}...")
     inputDict = dice.read_yaml_template(inps.template)
@@ -81,12 +81,14 @@ def main():
     os.mkdir(intdir)
     os.chdir(intdir)
 
-    refDate = gf.query('absoluteOrbit == @inps.reference').sceneDateString.iloc[0]
-    secDate = gf.query('absoluteOrbit == @inps.secondary').sceneDateString.iloc[0]
+    ref = gf.query('orbit == @inps.reference')
+    sec = gf.query('orbit == @inps.secondary')
+    refDate = ref.startTime.values[0]
+    secDate = sec.startTime.values[0]
     print(refDate, secDate)
 
-    reference_url = gf.query('absoluteOrbit == @inps.reference').downloadUrl.iloc[0]
-    secondary_url = gf.query('absoluteOrbit == @inps.secondary').downloadUrl.iloc[0]
+    reference_url = ref.url.values[0]
+    secondary_url = sec.url.values[0]
     downloadList = [reference_url,secondary_url]
     inps.reference_scenes = os.path.basename(reference_url)
     inps.secondary_scenes = os.path.basename(secondary_url)
