@@ -11,6 +11,7 @@ keywords = ["SAR","ISCE"]
 
 [tool.poetry.scripts]
 update_inventory = 'isce2gimp.cli.update_inventory:main'
+query_inventory = 'isce2gimp.cli.query_inventory:main'
 prep_pair = 'isce2gimp.cli.prep_pair:main'
 prep_stack = 'isce2gimp.cli.prep_stack:main'
 convert_isce = 'isce2gimp.cli.convert_isce:main'
