@@ -1,5 +1,7 @@
 """Tests for querying ASF archive."""
 import os
+import shlex
+import subprocess
 import contextlib
 import pytest
 
@@ -16,24 +18,36 @@ def run_in(path):
         os.chdir(CWD)
 
 
+def test_query_inventory(tmpdir):
+    with run_in(tmpdir):
+        cmd = shlex.split('query_inventory -p 25 -s 2014-01-01 -e 2015-01-01')
+        stdout = subprocess.run(cmd, stdout=subprocess.PIPE, text=True).stdout
+        assert '2014-10-19' in stdout
+
+
 def test_prep_pair(tmpdir):
     with run_in(tmpdir):
-        os.system('prep_pair -p 90 -f 227 -r 13416 -s 24487')
+        cmd = shlex.split('prep_pair -p 90 -f 227 -r 13416 -s 24487')
+        p = subprocess.run(cmd)
         outdir = "90-227-13416-24487"
         assert os.path.isdir(outdir)
         assert os.path.isfile(f'{outdir}/download-links.txt')
         assert os.path.isfile(f'{outdir}/topsApp.xml')
 
+
 def test_prep_stack(tmpdir):
     with run_in(tmpdir):
-        os.system('prep_stack -p 90 -f 227 -r 13416 -n 3')
+        cmd = shlex.split('prep_stack -p 90 -f 227 -r 13416 -n 3')
+        p = subprocess.run(cmd)
         outdirs = ["90-227-13416-24487", "90-227-24487-13591", "90-227-13591-24662"]
         for outdir in outdirs:
             assert os.path.isdir(outdir)
 
+
 def test_unaligned_frames(tmpdir):
     with run_in(tmpdir):
-        os.system('prep_stack -p 83 -f 374 -s 2021-09-04 -n 1')
+        cmd = shlex.split('prep_stack -p 83 -f 374 -s 2021-09-04 -n 1')
+        p = subprocess.run(cmd)
         procdir = "83-374-39530-28634"
         datadir = "tmp-data-83"
         assert os.path.isdir(procdir)

@@ -4,7 +4,7 @@ Download json inventory for ASF Sentinel-1 archive with greenland.geojson
 
 Usage: ./get_asf_inventory.py
 '''
-
+import argparse
 import requests
 from datetime import date
 import geopandas as gpd
@@ -16,7 +16,7 @@ ROOTDIR = Path(__file__).parent.parent
 INVENTORY = os.path.join(ROOTDIR, 'data', 'asf_inventory.gpkg')
 TODAY = date.today()
 
-print(f"Updating {INVENTORY} through {TODAY}")
+#print(f"Updating {INVENTORY} through {TODAY}")
 
 def query_asf(
     sat="Sentinel-1",
@@ -55,7 +55,7 @@ def query_asf(
         data["flightDirection"] = flightDirection
 
     r = requests.get(baseurl, params=data)
-    print(r.url)
+    #print(r.url)
     #print(r.status_code)    
     return r.json()
 
@@ -82,9 +82,7 @@ def convert_dtypes(df):
 
 
 def asfjson2geopandas(json):
-    """ convert ASF JSON response to GeoDataFrame 
-
-    """
+    ''' convert ASF GEOJSON response to GeoDataFrame '''
     gf = gpd.GeoDataFrame.from_features(json)
     gf = gf.drop(columns=['browse','faradayRotation','insarStackId','offNadirAngle','pointingAngle'])
     gf = convert_dtypes(gf)
@@ -94,6 +92,7 @@ def asfjson2geopandas(json):
 
 
 def get_last_date_layered(path):
+    ''' assumes data stored such that rows top to bottom are ascending chronological'''
     dates = []
     layers = fiona.listlayers(path)
     for layer in layers:    
@@ -109,7 +108,7 @@ def get_last_date_layered(path):
 
 
 def get_last_date(path):
-    # last row will be most recent date
+    ''' for single dataframe, assume last row is most recent date '''
     gf = gpd.read_file(path, rows=slice(-1,None))
     date = gpd.pd.to_datetime(gf.startTime.values[0])
     # Add one second to avoid getting repeats
@@ -120,20 +119,27 @@ def get_last_date(path):
 
 def write_layers(gf):
     ''' write each relative orbit as a separate layer'''
-    # 40218 frames
-    # reading entire GPKG: CPU times: user 4.66 s, sys: 83.1 ms, total: 4.75 s
-    # reading entire PARQUET: CPU times: user 1.49 s, sys: 137 ms, total: 1.62 s
-    # %time gpd.read_file(path, layer='90') 1.05s (~5000 rows seems to scale w/ number of rows)
-    mode = 'a' if os.path.isfile(INVENTORY) else 'w'
+    if os.path.isfile(INVENTORY):
+        layers = fiona.listlayers(INVENTORY)
+    else:
+        layers = []
 
     for relOrb in gf.pathNumber.sort_values().unique():
-        print(f'saving layer for relative orbit = {relOrb}')
         subset = gf.query('pathNumber == @relOrb')
-        subset.to_file(INVENTORY, driver='GPKG', layer=str(relOrb))
+        print(f'adding {len(subset)} scenes to relative orbit = {relOrb}')
+        
+        # DriverError: NULL pointer error if writing new layer with mode='a'
+        if str(relOrb) in layers:
+            mode = 'a'
+        else:
+            mode = 'w'
+
+        subset = gf.query('pathNumber == @relOrb')
+        subset.to_file(INVENTORY, driver='GPKG', layer=str(relOrb), mode=mode)
     
 
 def read_all_layers(path):
-    # https://stackoverflow.com/questions/56165069/can-geopandas-get-a-geopackages-or-other-vector-file-all-layers
+    ''' read geopackage file with multiple layers into single dataframe'''
     layers = fiona.listlayers(path) 
     gf = gpd.read_file(path, driver='GPKG', layer=layers.pop(0)) # get first layer
     for layer in layers:
@@ -143,28 +149,29 @@ def read_all_layers(path):
     return gf
 
 
-def main():
-    if os.path.isfile(INVENTORY):
-       start = get_last_date_layered(INVENTORY)
-    else:
-       start = None    
-    
-    end = TODAY.strftime('%Y-%m-%d')
+def update_inventory(start, end):
+    ''' update inventory through date=end '''
     response = query_asf(start=start, stop=end)
-    
-    if len(response) == 0:
-        print('Did not find new scenes')
-    else:
+    if len(response) > 0:
         gf = asfjson2geopandas(response)
-        nscenes = len(gf)
-        print(f'found {nscenes} scenes')
-        
-        #if os.path.isfile(INVENTORY):
-        #    mode = 'a'
-        #else:
-        #    mode = 'w'
-        #gf.to_file(INVENTORY, driver='GPKG', mode=mode)
+        print(f'found {len(gf)} scenes')
         write_layers(gf)
+
+
+def main():
+    ''' create greenland inventory file '''
+    # For initial inventory creation loop over years
+    if not os.path.isfile(INVENTORY):
+        update_inventory('2014-01-01', '2015-01-01') 
+        years = gpd.pd.date_range('2016-01-01', date.today(), freq='YS')
+        for end in years:
+            start = get_last_date_layered(INVENTORY)
+            update_inventory(start, end)
+
+    else:
+        start = get_last_date_layered(INVENTORY)    
+        end = TODAY.strftime('%Y-%m-%d')
+        update_inventory(start, end)
 
 if __name__ == "__main__":
     main() 
