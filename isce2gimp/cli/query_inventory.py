@@ -36,6 +36,9 @@ def cmdLineParse():
         required=True,
         help="Path/Track/RelativeOrbit Number",
     )
+    parser.add_argument(
+        "-f", type=int, dest="frame", required=False, help="frame number"
+    )
 
     return parser
 
@@ -54,6 +57,9 @@ def main():
     
     if inps.end:
         gf = gf.query('startTime <= @inps.end')
+    
+    if inps.frame:
+        gf = gf.query('frameNumber == @inps.frame')
 
     gf['date'] = gf.startTime.str[:10]
     print(gf.groupby(['date','orbit','platform']).frameNumber.agg(lambda x: list(x)).to_string())
