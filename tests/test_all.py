@@ -43,6 +43,11 @@ def test_prep_stack(tmpdir):
         for outdir in outdirs:
             assert os.path.isdir(outdir)
 
+def test_aligned_frames(tmpdir):
+    with run_in(tmpdir):
+        cmd = shlex.split('prep_stack -p 83 -f 374 -s 2021-09-04 -n 1 -m')
+        p = subprocess.run(cmd)
+        assert os.path.isdir("83-374-39530-39705")
 
 def test_unaligned_frames(tmpdir):
     with run_in(tmpdir):

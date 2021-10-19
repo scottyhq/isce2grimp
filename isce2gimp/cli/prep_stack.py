@@ -56,6 +56,11 @@ def cmdLineParse():
     parser.add_argument(
         "-f", type=int, dest="frame", required=True, help="ASF Frame"
     )
+    parser.add_argument(
+        "-m", dest="match_frame", required=False, default=False,  action='store_true', 
+        help="use exact frame number match"
+    )
+
 
     return parser
 
@@ -149,10 +154,13 @@ def main():
     else:
         raise ValueError('must supply either -r or -s')
     
-    # Since framing of consecutive frames don't always line up, find overlaps
-    gf = gf[startInd:startInd+200]
-    gf['overlap'] = get_overlap_area(gf, gfREF)
-    gf = gf.query('overlap >= 0.1').reset_index()
+    if inps.match_frame:
+        gf = gfREF.loc[startInd:]
+    else:
+        # Since framing of consecutive frames don't always line up, find overlaps
+        gf = gf[startInd:startInd+200]
+        gf['overlap'] = get_overlap_area(gf, gfREF)
+        gf = gf.query('overlap >= 0.1').reset_index()
     
     select_orbits = gf.orbit.unique()
     for i in range(inps.npairs):
