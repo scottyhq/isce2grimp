@@ -8,6 +8,7 @@ import argparse
 import requests
 from datetime import date
 import geopandas as gpd
+import pandas as pd
 import fiona
 import os
 from pathlib import Path
@@ -73,7 +74,7 @@ def convert_dtypes(df):
         df[col] = df[col].astype('int')
     
     for col in dates:
-        df[col] = gpd.pd.to_datetime(df[col])
+        df[col] = pd.to_datetime(df[col])
 
     for col in strings:
         df[col] = df[col].astype('string')
@@ -99,10 +100,10 @@ def get_last_date_layered(path):
         gf = gpd.read_file(path, rows=slice(-1,None), layer=layer)
         dates.append(gf.startTime.values[0])
     
-    date = gpd.pd.to_datetime(dates).max()
+    date = pd.to_datetime(dates).max()
         
     # Add one second to avoid getting repeats
-    datestr = str(date + gpd.pd.Timedelta(seconds=1))
+    datestr = str(date + pd.Timedelta(seconds=1))
 
     return datestr
 
@@ -110,9 +111,9 @@ def get_last_date_layered(path):
 def get_last_date(path):
     ''' for single dataframe, assume last row is most recent date '''
     gf = gpd.read_file(path, rows=slice(-1,None))
-    date = gpd.pd.to_datetime(gf.startTime.values[0])
+    date = pd.to_datetime(gf.startTime.values[0])
     # Add one second to avoid getting repeats
-    datestr = str(date + gpd.pd.Timedelta(seconds=1))
+    datestr = str(date + pd.Timedelta(seconds=1))
 
     return datestr
 
@@ -163,7 +164,8 @@ def main():
     # For initial inventory creation loop over years
     if not os.path.isfile(INVENTORY):
         update_inventory('2014-01-01', '2015-01-01') 
-        years = gpd.pd.date_range('2016-01-01', date.today(), freq='YS')
+        end_range = date.today() + pd.Timedelta(365, 'days')
+        years = pd.date_range('2016-01-01', end_range, freq='YS')
         for end in years:
             start = get_last_date_layered(INVENTORY)
             update_inventory(start, end)
