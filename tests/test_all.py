@@ -5,6 +5,9 @@ import subprocess
 import contextlib
 import pytest
 
+from pathlib import Path
+ROOTDIR = Path(__file__).parent.parent
+
 @contextlib.contextmanager
 def run_in(path):
     CWD = os.getcwd()
@@ -34,6 +37,15 @@ def test_prep_pair(tmpdir):
         assert os.path.isfile(f'{outdir}/download-links.txt')
         assert os.path.isfile(f'{outdir}/topsApp.xml')
 
+def test_custom_template(tmpdir):
+    TEMPLATE = os.path.join(ROOTDIR, 'isce2gimp','data','template-noion.yml')
+    with run_in(tmpdir):
+        cmd = shlex.split(f'prep_stack -p 83 -f 374 -s 2021-09-04 -n 1 -m -t {TEMPLATE}')
+        p = subprocess.run(cmd)
+        with open('83-374-39530-39705/topsApp.xml') as f:
+            links = f.read()
+        assert "<property name='doionospherecorrection'>False</property>" in links
+
 
 def test_prep_stack(tmpdir):
     with run_in(tmpdir):
@@ -62,4 +74,3 @@ def test_unaligned_frames(tmpdir):
         assert 'S1A_IW_SLC__1SDH_20210904T092848_20210904T092916_039530_04ABED_6AC5' in links
         assert 'S1B_IW_SLC__1SDH_20210910T092747_20210910T092817_028634_036ADB_B496' in links
         assert 'S1B_IW_SLC__1SDH_20210910T092814_20210910T092842_028634_036ADB_2401' in links
-

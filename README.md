@@ -24,8 +24,8 @@ dem and other settings specified in template.yml
 update_inventory
 
 # Single self-contained pair w/ download links in folder
-# prep_isce -p RELORB -f FRAME_ID -r [REFERENCE_ABSORB] -s [SECONDARY_ABSORB] 
-prep_pair -p 90 -f 227 -r 13416 -s 24487 
+# prep_isce -p RELORB -f FRAME_ID -r [REFERENCE_ABSORB] -s [SECONDARY_ABSORB]
+prep_pair -p 90 -f 227 -r 13416 -s 24487
 
 # Sequence of 'n' pairs starting with reference orbit
 prep_stack -p 90 -f 227 -r 13416 -n 3
@@ -77,7 +77,14 @@ git push
 
 ## Notes
 
-#### To run ISCE scripts such as mdx.py for visualizing results, first update the system $PATH 
+#### Use a template.yml to customize processing options
+
+You can pass a [yml template](isce2gimp/data/template-noion.yml) to customize any topsApp.py options, for example do not perform an ionospheric correction.
+```
+prep_stack -p 83 -f 374 -s 2021-09-04 -n 1 -t /path/to/template-noion.yml
+```
+
+#### To run ISCE scripts such as mdx.py for visualizing results, first update the system $PATH
 
 NOTE: this is for ian's environment
 ```
