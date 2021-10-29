@@ -86,9 +86,8 @@ prep_stack -p 83 -f 374 -s 2021-09-04 -n 1 -t /path/to/template-noion.yml
 
 #### To run ISCE scripts such as mdx.py for visualizing results, first update the system $PATH
 
-NOTE: this is for ian's environment
 ```
-export ISCE_HOME=/home/ian/anaconda3/envs/isce2gimp/lib/python3.9/site-packages/isce
+export ISCE_HOME=$CONDA_PREFIX/lib/python3.9/site-packages/isce
 export PATH=$PATH:${ISCE_HOME}/bin:${ISCE_HOME}/applications
 
 mdx.py filt_topophase.unw
