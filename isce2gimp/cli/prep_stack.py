@@ -30,13 +30,16 @@ def cmdLineParse():
     """Command line parser."""
     parser = argparse.ArgumentParser(description="prepare ISCE 2.5.2 topsApp.py")
     parser.add_argument(
-        "-n", type=int, dest="npairs", required=True, help="number of sequential pairs"
+        "-n", type=int, dest="npairs", required=False, default=10, help="number of sequential pairs"
     )
     parser.add_argument(
         "-r", type=int, dest="reference", required=False, help="reference absolute orbit"
     )
     parser.add_argument(
         "-s", type=str, dest="start", required=False, help="reference start date"
+    )
+    parser.add_argument(
+        "-e", type=str, dest="end", required=False, help="reference end date"
     )
     parser.add_argument(
         "-p",
@@ -136,6 +139,13 @@ def main():
 
     print(f'reading relative orbit {inps.path} from {INVENTORY}...')
     gf = gpd.read_file(INVENTORY, layer=str(inps.path))
+    print("temporal span:") 
+    print(gf.startTime.min(), gf.stopTime.max())
+
+    if inps.end:
+        gf = gf.query('stopTime <= @inps.end')
+        print("cropped span:")
+        print(gf.startTime.min(), gf.stopTime.max())
     
     # Basic input error catching
     frames = gf.frameNumber.sort_values().unique()
@@ -161,9 +171,10 @@ def main():
         gf = gf[startInd:startInd+200]
         gf['overlap'] = get_overlap_area(gf, gfREF)
         gf = gf.query('overlap >= 0.1').reset_index()
-    
+   
     select_orbits = gf.orbit.unique()
-    for i in range(inps.npairs):
+    NPAIRS = len(select_orbits)-1
+    for i in range(NPAIRS):
         inps.reference = select_orbits[i]
         inps.secondary = select_orbits[i+1]
         print(inps.reference, inps.secondary)

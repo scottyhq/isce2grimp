@@ -46,6 +46,13 @@ def test_custom_template(tmpdir):
             links = f.read()
         assert "<property name='doionospherecorrection'>False</property>" in links
 
+def test_prep_stack_enddate(tmpdir):
+    with run_in(tmpdir):
+        cmd = shlex.split('prep_stack -p 83 -f 374 -s 2020-06-01 -e 2020-07-01 -m -n 50')
+        p = subprocess.run(cmd)
+        outdirs = ["tmp-data-83", "83-374-32880-33055", "83-374-33055-33230"]
+        for outdir in outdirs:
+            assert os.path.isdir(outdir)
 
 def test_prep_stack(tmpdir):
     with run_in(tmpdir):
