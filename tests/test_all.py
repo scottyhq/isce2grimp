@@ -47,10 +47,20 @@ def test_custom_template(tmpdir):
         assert "<property name='doionospherecorrection'>False</property>" in links
 
 def test_prep_stack_enddate(tmpdir):
+    # If more pairs requested than exist through enddate, enddate takes precedence
     with run_in(tmpdir):
         cmd = shlex.split('prep_stack -p 83 -f 374 -s 2020-06-01 -e 2020-07-01 -m -n 50')
         p = subprocess.run(cmd)
         outdirs = ["tmp-data-83", "83-374-32880-33055", "83-374-33055-33230"]
+        for outdir in outdirs:
+            assert os.path.isdir(outdir)
+
+def test_prep_stack_npairs(tmpdir):
+    # if fewer pairs requested than exist in temporal range, make sure just n pairs are used
+    with run_in(tmpdir):
+        cmd = shlex.split('prep_stack -p 83 -s 2019-01-01 -e 2021-01-01 -f 368 -n 2')
+        p = subprocess.run(cmd)
+        outdirs = ["tmp-data-83", "83-368-14284-25355", "83-368-25355-14459"]
         for outdir in outdirs:
             assert os.path.isdir(outdir)
 
