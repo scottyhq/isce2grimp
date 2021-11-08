@@ -6,7 +6,7 @@ Usage: ./get_asf_inventory.py
 '''
 import argparse
 import requests
-from datetime import date
+from datetime import datetime
 import geopandas as gpd
 import pandas as pd
 import fiona
@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOTDIR = Path(__file__).parent.parent
 INVENTORY = os.path.join(ROOTDIR, 'data', 'asf_inventory.gpkg')
-TODAY = date.today()
+TODAY = str(datetime.today())
 
 #print(f"Updating {INVENTORY} through {TODAY}")
 
@@ -26,7 +26,6 @@ def query_asf(
     stop=None,
     beam="IW",
     flightDirection=None,
-    outfile='query.json'
 ):
     """Search ASF API and return GeoJSON
 
@@ -98,7 +97,7 @@ def get_last_date_layered(path):
     layers = fiona.listlayers(path)
     for layer in layers:    
         gf = gpd.read_file(path, rows=slice(-1,None), layer=layer)
-        dates.append(gf.startTime.values[0])
+        dates.append(gf.stopTime.values[0])
     
     date = pd.to_datetime(dates).max()
         
@@ -111,7 +110,7 @@ def get_last_date_layered(path):
 def get_last_date(path):
     ''' for single dataframe, assume last row is most recent date '''
     gf = gpd.read_file(path, rows=slice(-1,None))
-    date = pd.to_datetime(gf.startTime.values[0])
+    date = pd.to_datetime(gf.stopTime.values[0])
     # Add one second to avoid getting repeats
     datestr = str(date + pd.Timedelta(seconds=1))
 
@@ -153,10 +152,12 @@ def read_all_layers(path):
 def update_inventory(start, end):
     ''' update inventory through date=end '''
     response = query_asf(start=start, stop=end)
-    if len(response) > 0:
+    if len(response['features']) > 0:
         gf = asfjson2geopandas(response)
         print(f'found {len(gf)} scenes')
         write_layers(gf)
+    else:
+        print('No new scenes found.')
 
 
 def main():
@@ -164,7 +165,7 @@ def main():
     # For initial inventory creation loop over years
     if not os.path.isfile(INVENTORY):
         update_inventory('2014-01-01', '2015-01-01') 
-        end_range = date.today() + pd.Timedelta(365, 'days')
+        end_range = datetime.today() + pd.Timedelta(365, 'days')
         years = pd.date_range('2016-01-01', end_range, freq='YS')
         for end in years:
             start = get_last_date_layered(INVENTORY)
@@ -172,7 +173,7 @@ def main():
 
     else:
         start = get_last_date_layered(INVENTORY)    
-        end = TODAY.strftime('%Y-%m-%d')
+        end = TODAY
         update_inventory(start, end)
 
 if __name__ == "__main__":
