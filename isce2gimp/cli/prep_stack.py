@@ -142,6 +142,8 @@ def main():
     print("temporal span:") 
     print(gf.startTime.min(), gf.stopTime.max())
 
+    print(f'requested number of pairs (-n):  ', inps.npairs)
+
     if inps.end:
         gf = gf.query('stopTime <= @inps.end')
         print("cropped span:")
@@ -172,8 +174,12 @@ def main():
         gf['overlap'] = get_overlap_area(gf, gfREF)
         gf = gf.query('overlap >= 0.1').reset_index()
    
+    # Use requested 'npairs' up to end date
     select_orbits = gf.orbit.unique()
     NPAIRS = len(select_orbits)-1
+    if inps.npairs < NPAIRS:
+        NPAIRS = inps.npairs
+    
     for i in range(NPAIRS):
         inps.reference = select_orbits[i]
         inps.secondary = select_orbits[i+1]
