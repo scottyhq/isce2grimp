@@ -139,15 +139,22 @@ def main():
 
     print(f'reading relative orbit {inps.path} from {INVENTORY}...')
     gf = gpd.read_file(INVENTORY, layer=str(inps.path))
-    print("temporal span:") 
-    print(gf.startTime.min(), gf.stopTime.max())
+    print("temporal span: ", gf.startTime.min(), gf.stopTime.max())
+    print('frames:', len(gf))
 
     print(f'requested number of pairs (-n):  ', inps.npairs)
 
+    # Crop temporal span of inventory
+    if inps.start:
+        gf = gf.query('startTime >= @inps.start')
+    elif inps.reference:
+        START = gf.query('orbit == @inps.reference')['startTime'].min()
+        gf = gf.query('startTime >= @START')  
     if inps.end:
         gf = gf.query('stopTime <= @inps.end')
-        print("cropped span:")
-        print(gf.startTime.min(), gf.stopTime.max())
+    gf.reset_index(inplace=True)
+    print("cropped temporal span: ", gf.startTime.min(), gf.stopTime.max())
+    print('frames:', len(gf))
     
     # Basic input error catching
     frames = gf.frameNumber.sort_values().unique()
@@ -170,8 +177,9 @@ def main():
         gf = gfREF.loc[startInd:]
     else:
         # Since framing of consecutive frames don't always line up, find overlaps
-        gf = gf[startInd:startInd+200]
+        gf = gf.loc[startInd:startInd+200]
         gf['overlap'] = get_overlap_area(gf, gfREF)
+        #print(gf.loc[:,['frameNumber','overlap']])
         gf = gf.query('overlap >= 0.1').reset_index()
    
     # Use requested 'npairs' up to end date

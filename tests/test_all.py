@@ -60,7 +60,7 @@ def test_prep_stack_npairs(tmpdir):
     with run_in(tmpdir):
         cmd = shlex.split('prep_stack -p 83 -s 2019-01-01 -e 2021-01-01 -f 368 -n 2')
         p = subprocess.run(cmd)
-        outdirs = ["tmp-data-83", "83-368-14284-25355", "83-368-25355-14459"]
+        outdirs = ["tmp-data-83", "83-368-14459-25530", "83-368-25355-14459"]
         for outdir in outdirs:
             assert os.path.isdir(outdir)
 
@@ -71,6 +71,25 @@ def test_prep_stack(tmpdir):
         outdirs = ["90-227-13416-24487", "90-227-24487-13591", "90-227-13591-24662"]
         for outdir in outdirs:
             assert os.path.isdir(outdir)
+
+def test_single_frame(tmpdir):
+    ''' ASF frames do not always have consistent footprints (e.g. 90, 197)
+    S1A_IW_SLC__1SSH_20150127T204430_20150127T204459_004362_005525_9592
+    S1A_IW_SLC__1SSH_20160521T204438_20160521T204505_011362_011412_BC5A
+    S1B_IW_SLC__1SSH_20170323T204358_20170323T204425_004841_00874A_4893
+    '''
+    with run_in(tmpdir):
+        cmd = shlex.split('prep_stack -p 90 -f 197 -r 19716 -n 1')
+        p = subprocess.run(cmd)
+        PAIR = "90-197-19716-30787"
+        assert os.path.isdir(PAIR)
+        
+        with open(f'{PAIR}/topsApp.xml') as f:
+            config = f.read()
+
+        # Should be single SLC
+        SLC = "['../tmp-data-90/S1B_IW_SLC__1SDH_20200107T204419_20200107T204446_019716_02546B_DF12.zip']"
+        assert SLC in config
 
 def test_aligned_frames(tmpdir):
     with run_in(tmpdir):
