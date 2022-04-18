@@ -1,20 +1,20 @@
-# isce2gimp
-ISCE Processing for GIMP
+# isce2grimp
+ISCE Processing for GrIMP
 
 ## Install
 
-This code is designed to run on APL servers. To install, you need access to the private isce2gimp respository and a [GitHub personal access token (PAT)](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+This code is designed to run on APL servers. To install, you need access to the private isce2grimp respository and a [GitHub personal access token (PAT)](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 
 ```
-git clone git@github.com:scottyhq/isce2gimp.git
-cd isce2gimp
+git clone git@github.com:scottyhq/isce2grimp.git
+cd isce2grimp
 conda env create
-conda activate isce2gimp
+conda activate isce2grimp
 ```
 
 ## Run
 
-Process an ISCE frame & output range-doppler product w/ metadata required for GIMP workflows.
+Process an ISCE frame & output range-doppler product w/ metadata required for GrIMP workflows.
 
 At a minimum the following inputs are necessary. default is to re-download SLCs, precise orbits, and use
 dem and other settings specified in template.yml
@@ -49,7 +49,7 @@ Follow these instructions if you want to make changes to the code
 
 Work on a new 'feature' branch from current main branch
 ```
-cd isce2gimp
+cd isce2grimp
 git checkout main
 git pull
 git checkout -b newfeature
@@ -57,7 +57,7 @@ git checkout -b newfeature
 
 ```
 # Use a lock file to recreate the exact conda environment
-conda create --name isce2gimp --file conda-linux.lock
+conda create --name isce2grimp --file conda-linux.lock
 # Install development version of current branch
 poetry install
 ```
