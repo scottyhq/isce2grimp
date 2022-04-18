@@ -1,4 +1,4 @@
-name: isce2gimp
+name: isce2grimp
 channels:
   - conda-forge
 dependencies:
