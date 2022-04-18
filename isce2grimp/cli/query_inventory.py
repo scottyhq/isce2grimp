@@ -19,7 +19,7 @@ import geopandas as gpd
 import pandas as pd
 import os
 import sys
-from isce2gimp.cli.update_inventory import read_all_layers
+from isce2grimp.cli.update_inventory import read_all_layers
 from pathlib import Path
 
 pd.options.mode.chained_assignment = None  # default='warn'
