@@ -38,7 +38,7 @@ def test_prep_pair(tmpdir):
         assert os.path.isfile(f'{outdir}/topsApp.xml')
 
 def test_custom_template(tmpdir):
-    TEMPLATE = os.path.join(ROOTDIR, 'isce2gimp','data','template-noion.yml')
+    TEMPLATE = os.path.join(ROOTDIR, 'isce2grimp','data','template-noion.yml')
     with run_in(tmpdir):
         cmd = shlex.split(f'prep_stack -p 83 -f 374 -s 2021-09-04 -n 1 -m -t {TEMPLATE}')
         p = subprocess.run(cmd)

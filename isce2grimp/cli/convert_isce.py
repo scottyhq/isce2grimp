@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 Create geodat.in file, copy .unw and .conncomp to output folder, and run
-convertuw.py for GIMP offset processing.
+convertuw.py for GrIMP offset processing.
 
 # Warnings and notes:
 - this is a first pass, could be errors
@@ -13,7 +13,7 @@ ValueError: time data '' does not match format '%Y-%m-%d %H:%M:%S.%f'
 *currently a bit of a hack solution to extract time from isce.log, so make sure it is in the int directory
 
 Example:
-convert_isce.py -c -i /Volumes/insar10/scott/isce-frames/2018-11/A90-13416-24487 -o /Volumes/insar10/scott/gimpout/2018-11/A90-13416-24487
+convert_isce.py -c -i /Volumes/insar10/scott/isce-frames/2018-11/A90-13416-24487 -o /Volumes/insar10/scott/grimpout/2018-11/A90-13416-24487
 
 Author: Scott Henderson
 Date: 05/02/2019
@@ -31,7 +31,7 @@ import os
 import glob
 import shutil
 
-import isce2gimp.util as u 
+import isce2grimp.util as u 
 
 # Hard coded values for Sentinel-1 IW Mode
 # -----------------
@@ -49,7 +49,7 @@ params['ReMinor'] = 6356.7520
 def cmdLineParse():
     """Command line parser."""
     parser = argparse.ArgumentParser(
-                        description='convert ISCE outputs to GIMP')
+                        description='convert ISCE outputs to GrIMP')
     parser.add_argument('-i', type=str, dest='intdir', required=True,
                         help='path to ISCE int-date1-date2 directory')
     parser.add_argument('-o', type=str, dest='outdir', required=True,
@@ -226,7 +226,7 @@ def get_corner_coordinates(self, frames, orbit):
 
 
 def write_geodat_config(params, outdir):
-    ''' write output geodat.in file for GIMP processing '''
+    ''' write output geodat.in file for GrIMP processing '''
     output = '''; Image name: {name}
 ; Image date: {date}
 ; Image time: {time}
@@ -318,7 +318,7 @@ def copy_outputs(outdir):
 
 
 def convertuw(isceUNW, geodat):
-    ''' Convert geomosaicked sigma to tiff for GIMP'''
+    ''' Convert geomosaicked sigma to tiff for GrIMP'''
     uwFile=isceUNW.replace('unw','uw')
     # input image
     print(isceUNW,geodat,uwFile)
@@ -338,7 +338,7 @@ def convertuw(isceUNW, geodat):
 
 
 def main():
-    print('\n======\n Converting ISCE outputs to GIMP... \n======\n')
+    print('\n======\n Converting ISCE outputs to GrIMP... \n======\n')
     parser = cmdLineParse()
     inps = parser.parse_args()
     

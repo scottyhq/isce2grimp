@@ -1,4 +1,4 @@
-"""ISCE2GIMP."""
+"""ISCE2GrIMP."""
 
 from . import util
 from pkg_resources import get_distribution
