@@ -49,17 +49,13 @@ jobs:
 
       - name: Update Conda Environment
         if: steps.cache-env.outputs.cache-hit != 'true'
-        shell: bash -l {0}
-        run: mamba env update -n hackweek -f environment.yml
+        run: mamba env update -n isce2grimp -f environment.yml
 
       - name: Install ISCE2GrIMP
-        run: |
-          poetry install
+        run: poetry install
 
       - name: Update Sentinel1 Inventory
-        run: |
-          update_inventory
+        run: update_inventory
 
       - name: Run PyTest
-        run: |
-          poetry run pytest -o markers=network
+        run: poetry run pytest -o markers=network
