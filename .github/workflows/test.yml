@@ -6,14 +6,7 @@ on:
     branches: main
 
 jobs:
-  spellcheck:
-    runs-on: ubuntu-20.04
-
-    steps:
-    - uses: actions/checkout@v2
-
-  conda:
-    name: test
+  test:
     runs-on: ubuntu-20.04
     defaults:
       run:
