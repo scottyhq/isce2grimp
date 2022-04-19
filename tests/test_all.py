@@ -65,11 +65,10 @@ def test_prep_stack_npairs(tmpdir):
             assert os.path.isdir(outdir)
 
 def test_prep_stack_jump(tmpdir):
-    # if fewer pairs requested than exist in temporal range, make sure just n pairs are used
     with run_in(tmpdir):
         cmd = shlex.split('prep_stack -p 90 -f 227 -s 2016-10-06 -n 2 -j 2')
         p = subprocess.run(cmd)
-        outdirs = ["tmp-data-90", "90-227-2391-13637", "90-227-13637-2916"]
+        outdirs = ["tmp-data-90", "90-227-2391-13637", "90-227-13462-2741"]
         for outdir in outdirs:
             assert os.path.isdir(outdir)
 

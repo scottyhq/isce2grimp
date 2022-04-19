@@ -192,14 +192,11 @@ def main():
     if inps.npairs < NPAIRS:
         NPAIRS = inps.npairs
 
-    ind_ref = 0
     for i in range(NPAIRS):
-        ind_sec = ind_ref + inps.jump + 1
-        inps.reference = select_orbits[ind_ref]
-        inps.secondary = select_orbits[ind_sec]
+        inps.reference = select_orbits[i]
+        inps.secondary = select_orbits[i + inps.jump + 1]
         print(inps.reference, inps.secondary)
         create_proc_dir(gf, inps)
-        ind_ref = ind_sec
 
 if __name__ == "__main__":
     main()
