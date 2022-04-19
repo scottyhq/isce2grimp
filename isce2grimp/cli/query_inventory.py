@@ -2,14 +2,14 @@
 '''
 print range of values (unique dates), absolute orbits for a given path
 
-Usage: 
+Usage:
 
 query_inventory -p 83 -s 2019-01-01 -e 2021-01-01
 query_inventory -p 17 -f 211
 query_inventory -p 17 -f 211 -a 19864
 
 
-various tabuler summaries 
+various tabuler summaries
 print(gf.groupby(['date','platform']).frameNumber.agg(lambda x: list(x)).to_string())
 print(gf.groupby(['platform','frameNumber']).sceneName.count())
 print(gf.groupby(['date','platform','orbit']).frameNumber.count())
@@ -68,25 +68,30 @@ def main():
         gf = read_all_layers(INVENTORY)
         print('Total frames=',len(gf))
         summary = gf.groupby(['pathNumber']).agg(dict(sceneName='count', frameNumber='nunique', orbit='nunique',startTime='min', stopTime='max'))
-        summary = summary.rename(columns={'sceneName':'totalScenes','frameNumber':'uniqueFrames','orbit':'relativeOrbits'}) 
+        summary = summary.rename(columns={'sceneName':'totalScenes','frameNumber':'uniqueFrames','orbit':'relativeOrbits'})
         print(summary)
         sys.exit()
 
-    if inps.start:
-        gf = gf.query('startTime >= @inps.start')
-    
-    if inps.end:
-        gf = gf.query('startTime <= @inps.end')
-    
     if inps.frame:
         gf = gf.query('frameNumber == @inps.frame')
 
+    # convert dtypes
     gf['date'] = gf.startTime.str[:10]
+    gf['startTime'] = pd.to_datetime(gf.startTime)
+
+    if inps.start:
+        gf = gf.query('startTime >= @inps.start')
+
+    if inps.end:
+        gf = gf.query('startTime <= @inps.end')
+
+    # Add timespans with '0' for first entry instead of 'NaT'
+    gf['dt_days'] = pd.to_datetime(gf.date).diff().dt.days.fillna(0).astype(int)
 
     if inps.absolute_orbit:
         print(gf.query('orbit == @inps.absolute_orbit').T.drop('geometry').to_string())
     else:
-        print(gf.groupby(['date','orbit','platform']).frameNumber.agg(lambda x: list(x)).to_string())
+        print(gf.groupby(['date','dt_days','orbit','platform']).frameNumber.agg(lambda x: list(x)).to_string())
 
 if __name__ == "__main__":
-    main() 
+    main()
