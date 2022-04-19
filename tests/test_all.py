@@ -64,11 +64,19 @@ def test_prep_stack_npairs(tmpdir):
         for outdir in outdirs:
             assert os.path.isdir(outdir)
 
-def test_prep_stack_jump(tmpdir):
+def test_prep_stack_jump_npairs(tmpdir):
     with run_in(tmpdir):
         cmd = shlex.split('prep_stack -p 90 -f 227 -s 2016-10-06 -n 2 -j 2')
         p = subprocess.run(cmd)
         outdirs = ["tmp-data-90", "90-227-2391-13637", "90-227-13462-2741"]
+        for outdir in outdirs:
+            assert os.path.isdir(outdir)
+
+def test_prep_stack_jump_limited_pairs(tmpdir):
+    with run_in(tmpdir):
+        cmd = shlex.split('prep_stack -p 90 -f 227 -s 2016-10-01 -e 2016-11-06 -n 10 -j 3')
+        p = subprocess.run(cmd)
+        outdirs = ["tmp-data-90", "90-227-13462-13812", "90-227-2391-2741"]
         for outdir in outdirs:
             assert os.path.isdir(outdir)
 
