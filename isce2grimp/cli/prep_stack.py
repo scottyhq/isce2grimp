@@ -60,10 +60,13 @@ def cmdLineParse():
         "-f", type=int, dest="frame", required=True, help="ASF Frame"
     )
     parser.add_argument(
-        "-m", dest="match_frame", required=False, default=False,  action='store_true', 
+        "-m", dest="match_frame", required=False, default=False,  action='store_true',
         help="use exact frame number match"
     )
-
+    parser.add_argument(
+        "-j", dest="jump", required=False, default=0, type=int,
+        help="jump acquitions (-j 2 will skip 2 6-day acquisitions, forming 18-day pairs)"
+    )
 
     return parser
 
@@ -118,18 +121,19 @@ def get_overlap_area(gf, gfREF):
     # want frames with > 10% overlap
     frame_area = gfREF.iloc[0].geometry.area
     overlaps = gf.geometry.map(lambda x: x.intersection(gfREF.geometry.iloc[0]).area/frame_area)
-    
+
     return overlaps
 
 
 def get_nearest_orbit(gf, date):
     """" return nearest orbit for a given date """
     print(f'getting nearest acquistion to {date}')
-    intindex = pd.DatetimeIndex(gf.startTime).get_loc(pd.to_datetime(date), method='nearest')
-    ind = gf.index[intindex]
-    print(gf.loc[ind,['startTime','orbit']].to_string())
-    
-    return ind
+    date_index = pd.DatetimeIndex(gf.startTime)
+    int_index = date_index.get_indexer([pd.to_datetime(date)], method='nearest')[0]
+    index = gf.index[int_index]
+    print(gf.loc[index,['startTime','orbit']].to_string())
+
+    return index
 
 
 def main():
@@ -149,21 +153,21 @@ def main():
         gf = gf.query('startTime >= @inps.start')
     elif inps.reference:
         START = gf.query('orbit == @inps.reference')['startTime'].min()
-        gf = gf.query('startTime >= @START')  
+        gf = gf.query('startTime >= @START')
     if inps.end:
         gf = gf.query('stopTime <= @inps.end')
     gf.reset_index(inplace=True)
     print("cropped temporal span: ", gf.startTime.min(), gf.stopTime.max())
     print('frames:', len(gf))
-    
+
     # Basic input error catching
     frames = gf.frameNumber.sort_values().unique()
     if inps.frame not in frames:
         raise ValueError(f'reference frame {inps.frame} not in inventory: {frames}')
-    
+
     gfREF = gf.query('frameNumber == @inps.frame')
     orbits = gfREF.orbit.sort_values().unique()
-    if inps.reference: 
+    if inps.reference:
         if inps.reference not in orbits:
             raise ValueError(f'reference orbit {inps.reference} not in inventory: {orbits}')
         else:
@@ -172,7 +176,7 @@ def main():
         startInd = get_nearest_orbit(gfREF, inps.start)
     else:
         raise ValueError('must supply either -r or -s')
-    
+
     if inps.match_frame:
         gf = gfREF.loc[startInd:]
     else:
@@ -181,16 +185,16 @@ def main():
         gf['overlap'] = get_overlap_area(gf, gfREF)
         #print(gf.loc[:,['frameNumber','overlap']])
         gf = gf.query('overlap >= 0.1').reset_index()
-   
+
     # Use requested 'npairs' up to end date
     select_orbits = gf.orbit.unique()
     NPAIRS = len(select_orbits)-1
     if inps.npairs < NPAIRS:
         NPAIRS = inps.npairs
-    
+
     for i in range(NPAIRS):
         inps.reference = select_orbits[i]
-        inps.secondary = select_orbits[i+1]
+        inps.secondary = select_orbits[i + inps.jump + 1]
         print(inps.reference, inps.secondary)
         create_proc_dir(gf, inps)
 

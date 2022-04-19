@@ -64,6 +64,14 @@ def test_prep_stack_npairs(tmpdir):
         for outdir in outdirs:
             assert os.path.isdir(outdir)
 
+def test_prep_stack_jump(tmpdir):
+    with run_in(tmpdir):
+        cmd = shlex.split('prep_stack -p 90 -f 227 -s 2016-10-06 -n 2 -j 2')
+        p = subprocess.run(cmd)
+        outdirs = ["tmp-data-90", "90-227-2391-13637", "90-227-13462-2741"]
+        for outdir in outdirs:
+            assert os.path.isdir(outdir)
+
 def test_prep_stack(tmpdir):
     with run_in(tmpdir):
         cmd = shlex.split('prep_stack -p 90 -f 227 -r 13416 -n 3')
@@ -83,7 +91,7 @@ def test_single_frame(tmpdir):
         p = subprocess.run(cmd)
         PAIR = "90-197-19716-30787"
         assert os.path.isdir(PAIR)
-        
+
         with open(f'{PAIR}/topsApp.xml') as f:
             config = f.read()
 
