@@ -127,7 +127,7 @@ def get_overlap_area(gf, gfREF):
 
 def get_nearest_orbit(gf, date):
     """" return nearest orbit for a given date """
-    print(f'getting nearest acquistion to {date}')
+    print(f'getting nearest acquistion to {date}:')
     date_index = pd.DatetimeIndex(gf.startTime)
     int_index = date_index.get_indexer([pd.to_datetime(date)], method='nearest')[0]
     index = gf.index[int_index]
@@ -186,12 +186,15 @@ def main():
         #print(gf.loc[:,['frameNumber','overlap']])
         gf = gf.query('overlap >= 0.1').reset_index()
 
-    # Use requested 'npairs' up to end date
+    # Use requested 'npairs' up to end date accounting for jump setting
     select_orbits = gf.orbit.unique()
-    NPAIRS = len(select_orbits)-1
+    print(f'unique orbits in requested range: {len(select_orbits)}')
+    print(f'requested jump between acquisition pairs (-j): {inps.jump}')
+    NPAIRS = len(select_orbits) - 1 - inps.jump
     if inps.npairs < NPAIRS:
         NPAIRS = inps.npairs
 
+    print(f'creating processing directories for {NPAIRS} pairs:')
     for i in range(NPAIRS):
         inps.reference = select_orbits[i]
         inps.secondary = select_orbits[i + inps.jump + 1]
