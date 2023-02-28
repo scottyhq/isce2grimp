@@ -23,6 +23,9 @@ dem and other settings specified in template.yml
 # Periodically update the sentinel1 inventory from ASF
 update_inventory
 
+# Query the local inventory (fast compared to remote ASF API query):
+query_inventory -p 83 -s 2019-01-01 -e 2021-01-01 -f 368
+
 # Single self-contained pair w/ download links in folder
 # prep_isce -p RELORB -f FRAME_ID -r [REFERENCE_ABSORB] -s [SECONDARY_ABSORB]
 prep_pair -p 90 -f 227 -r 13416 -s 24487
