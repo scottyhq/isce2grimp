@@ -79,7 +79,7 @@ git push
 
 #### Use a template.yml to customize processing options
 
-You can pass a [yml template](isce2gimp/data/template-noion.yml) to customize any topsApp.py options, for example do not perform an ionospheric correction.
+You can pass a [yml template](./isce2grimp/data/template-noion.yml) to customize any topsApp.py options, for example do not perform an ionospheric correction.
 ```
 prep_stack -p 83 -f 374 -s 2021-09-04 -n 1 -t /path/to/template-noion.yml
 ```
