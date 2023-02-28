@@ -1,0 +1,25 @@
+topsinsar:
+  sensorname: SENTINEL1
+  swaths: [1]
+  azimuthlooks: 12
+  rangelooks: 60
+  doesd: False
+  doionospherecorrection: True
+  ION_considerBurstProperties: True
+  ION_ionHeight: 250
+  dounwrap: False
+  unwrappername: snaphu_mcf
+  demfilename: /Volumes/insar10/scott/glo30-dem/glo30_isce.dem.wgs84
+  usegpu: False
+
+  reference:
+    safe: ''
+    output directory: reference
+    orbit directory: /Volumes/insar9/ian/Data/SentinelGreenland/OPOD
+    polarization: hh
+
+  secondary:
+    safe: ''
+    output directory: secondary
+    orbit directory: /Volumes/insar9/ian/Data/SentinelGreenland/OPOD
+    polarization: hh
