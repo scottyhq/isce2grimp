@@ -84,7 +84,9 @@ def convert_dtypes(df):
 def asfjson2geopandas(json):
     ''' convert ASF GEOJSON response to GeoDataFrame '''
     gf = gpd.GeoDataFrame.from_features(json)
-    gf = gf.drop(columns=['browse','faradayRotation','insarStackId','offNadirAngle','pointingAngle'])
+    # We don't need these columns for local inventory:
+    drop_cols = ['browse','faradayRotation','insarStackId','offNadirAngle','pointingAngle','centerLat','centerLon']
+    gf = gf.drop(columns=drop_cols)
     gf = convert_dtypes(gf)
     gf.sort_values(by='startTime', inplace=True) #ascending head to tail
 
