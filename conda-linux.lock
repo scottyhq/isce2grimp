@@ -30,9 +30,6 @@ chardet=4.0.0=py39hf3d152e_1
 charls=2.2.0=h9c3ff4c_0
 charset-normalizer=2.0.0=pyhd8ed1ab_0
 cleo=0.8.1=pyh9f0ad1d_1
-click=8.0.1=pypi_0
-click-plugins=1.1.1=pypi_0
-cligj=0.7.2=pypi_0
 clikit=0.6.2=pyh9f0ad1d_0
 cloudpickle=1.6.0=py_0
 crashtest=0.3.0=py_0
@@ -43,14 +40,12 @@ cytoolz=0.11.0=py39h3811e60_3
 dask-core=2021.7.2=pyhd8ed1ab_0
 dbus=1.13.6=h48d8840_2
 decorator=5.0.9=pyhd8ed1ab_0
-dinosar=0.1.4=pypi_0
 distlib=0.3.2=pyhd8ed1ab_0
 dunamai=1.5.5=pyhd8ed1ab_0
 expat=2.4.1=h9c3ff4c_0
 ffmpeg=4.3.2=hca11adc_0
 fftw=3.3.9=nompi_h74d3f13_101
 filelock=3.0.12=pyh9f0ad1d_0
-fiona=1.8.20=pypi_0
 font-ttf-dejavu-sans-mono=2.37=hab24e00_0
 font-ttf-inconsolata=3.000=h77eed37_0
 font-ttf-source-code-pro=2.038=h77eed37_0
@@ -62,7 +57,6 @@ freetype=2.10.4=h0708190_1
 freexl=1.0.6=h7f98852_0
 fsspec=2021.7.0=pyhd8ed1ab_0
 gdal=3.3.1=py39h409cc32_1
-geopandas=0.8.2=pypi_0
 geos=3.9.1=h9c3ff4c_2
 geotiff=1.6.0=h4f31c25_6
 gettext=0.19.8.1=h0b5b191_1005
@@ -87,7 +81,6 @@ importlib_metadata=1.7.0=hd8ed1ab_1
 ipython=7.26.0=py39hef51801_0
 ipython_genutils=0.2.0=py_1
 isce2=2.5.2=py39hee44cce_0
-isce2gimp=0.0.0.post1+0c91980=pypi_0
 jasper=1.900.1=h07fcdf6_1006
 jedi=0.18.0=py39hf3d152e_2
 jeepney=0.7.1=pyhd8ed1ab_0
@@ -153,14 +146,11 @@ libzip=1.8.0=h4de3113_0
 libzopfli=1.0.3=h9c3ff4c_0
 locket=0.2.0=py_2
 lockfile=0.12.2=py_1
-lxml=4.6.3=pypi_0
 lz4-c=1.9.3=h9c3ff4c_1
 markupsafe=2.0.1=py39h3811e60_0
 matplotlib-base=3.4.2=py39h2fa2bec_0
 matplotlib-inline=0.1.2=pyhd8ed1ab_2
-more-itertools=8.8.0=pypi_0
 msgpack-python=1.0.2=py39h1a9c180_1
-munch=2.5.0=pypi_0
 mysql-common=8.0.25=ha770c72_2
 mysql-libs=8.0.25=hfa10184_2
 ncurses=6.2=h58526e2_4
@@ -175,8 +165,6 @@ openh264=2.1.1=h780b84a_0
 openjpeg=2.4.0=hb52868f_1
 openmotif=2.3.8=ha85b609_2
 openssl=1.1.1k=h7f98852_0
-packaging=21.0=pypi_0
-pandas=1.3.1=pypi_0
 parso=0.8.2=pyhd8ed1ab_0
 partd=1.2.0=pyhd8ed1ab_0
 pastel=0.2.0=py_0
@@ -187,7 +175,6 @@ pillow=8.3.1=py39ha612740_0
 pip=21.2.2=pyhd8ed1ab_0
 pixman=0.40.0=h36c2ea0_0
 pkginfo=1.7.1=pyhd8ed1ab_0
-pluggy=0.13.1=pypi_0
 poetry=1.1.7=py39hf3d152e_0
 poetry-core=1.0.3=pyhd8ed1ab_0
 poetry-dynamic-versioning=0.13.0=pyhd8ed1ab_0
@@ -199,7 +186,6 @@ proj=8.0.1=h277dcde_0
 prompt-toolkit=3.0.19=pyha770c72_0
 pthread-stubs=0.4=h36c2ea0_1001
 ptyprocess=0.7.0=pyhd3deb0d_0
-py=1.10.0=pypi_0
 py-opencv=4.5.2=py39hef51801_1
 pycparser=2.20=pyh9f0ad1d_2
 pygments=2.9.0=pyhd8ed1ab_0
@@ -209,11 +195,9 @@ pyparsing=2.4.7=pyh9f0ad1d_0
 pyproj=3.1.0=py39ha9a7ae0_3
 pyrsistent=0.14.11=py39h3811e60_2
 pysocks=1.7.1=py39hf3d152e_3
-pytest=5.4.3=pypi_0
 python=3.9.6=h49503c6_1_cpython
 python-dateutil=2.8.2=pyhd8ed1ab_0
 python_abi=3.9=2_cp39
-pytz=2021.1=pypi_0
 pywavelets=1.1.1=py39hce5d2b2_3
 pyyaml=5.4.1=py39h3811e60_0
 qt=5.12.9=hda022c4_4
@@ -224,7 +208,6 @@ scikit-image=0.18.2=py39hde0f152_0
 scipy=1.7.0=py39hee8e79c_1
 secretstorage=3.3.1=py39hf3d152e_0
 setuptools=49.6.0=py39hf3d152e_3
-shapely=1.7.1=pypi_0
 shellingham=1.4.0=pyh44b312d_0
 six=1.16.0=pyh6c4a22f_0
 snappy=1.1.8=he1b5a44_3
