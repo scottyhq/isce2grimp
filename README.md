@@ -9,40 +9,51 @@ git clone https://github.com/scottyhq/isce2grimp.git
 cd isce2grimp
 conda create --name isce2grimp --file conda-linux.lock
 conda activate isce2grimp
-pip install -e .
+poetry install
 ```
 
 ## Run
 
 Process an ISCE frame & output range-doppler product w/ metadata required for GrIMP workflows.
 
-At a minimum the following inputs are necessary. default is to re-download SLCs, precise orbits, and use
-dem and other settings specified in template.yml
+Default ISCE processing parameters are in [template.yml](isce2grimp/data/template.yml)
 
+#### Periodically update the sentinel1 inventory from ASF
 ```
-# Periodically update the sentinel1 inventory from ASF
 update_inventory
+```
 
-# Query the local inventory (fast compared to remote ASF API query):
+#### Query the local inventory (fast compared to remote ASF API query):
+```
 query_inventory -p 83 -s 2019-01-01 -e 2021-01-01 -f 368
+```
 
-# Single self-contained pair w/ download links in folder
+#### Single self-contained pair w/ download links in folder
+```
 # prep_isce -p RELORB -f FRAME_ID -r [REFERENCE_ABSORB] -s [SECONDARY_ABSORB]
 prep_pair -p 90 -f 227 -r 13416 -s 24487
+```
 
-# Sequence of 'n' pairs starting with reference orbit
+#### Sequence of 'n' pairs starting with reference orbit
+```
 prep_stack -p 90 -f 227 -r 13416 -n 3
 # NOTE: after running prep_stack, download shared zip files:
 cd tmp-data-90
 wget -nc -c -i download-links.txt
+```
 
-# RUN ISCE (in ifg folder created by prep_isce 90-227-13416-24487
+#### RUN ISCE (in ifg folder created by prep_isce 90-227-13416-24487
+```
 run_isce -i 90-227-13416-24487
+```
 
-# convert existing isce output
+#### convert existing isce output for downstream GRIMP processing
+```
 convert_isce -i 90-227-13416-24487 -o 90-227-13416-24487-out
+```
 
-# clean up after ourselves
+#### clean up after ourselves
+```
 clean_isce -i 90-227-13416-24487
 ```
 
@@ -58,10 +69,8 @@ git pull
 git checkout -b newfeature
 ```
 
+Install development version of current branch
 ```
-# Use a lock file to recreate the exact conda environment
-conda create --name isce2grimp --file conda-linux.lock
-# Install development version of current branch
 poetry install
 ```
 
@@ -76,7 +85,6 @@ git add [newfiles]
 git commit -m "some new things"
 git push
 ```
-
 
 ## Notes
 
