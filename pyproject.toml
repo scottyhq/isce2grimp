@@ -23,12 +23,6 @@ python = "^3.7"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.3"
-dunamai = "^1.0"
-
-[tool.poetry-dynamic-versioning]
-enable = true
-vcs = "git"
-style = "semver"
 
 [build-system]
 requires = ["poetry>=1.0"]
