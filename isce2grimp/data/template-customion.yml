@@ -5,6 +5,7 @@ topsinsar:
   rangelooks: 60
   doesd: False
   doionospherecorrection: True
+  applyionospherecorrection: True
   ION_considerBurstProperties: True
   ION_ionHeight: 250
   dounwrap: False
