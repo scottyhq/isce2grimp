@@ -1,15 +1,15 @@
 # isce2grimp
-ISCE Processing for GrIMP
+[ISCE2](https://github.com/isce-framework/isce2) Processing for [GrIMP](https://nsidc.org/grimp)
 
 ## Install
 
-This code is designed to run on APL servers. To install, you need access to the private isce2grimp respository and a [GitHub personal access token (PAT)](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token).
-
 ```
-git clone git@github.com:scottyhq/isce2grimp.git
+(or git@github.com:scottyhq/isce2grimp.git)
+git clone https://github.com/scottyhq/isce2grimp.git
 cd isce2grimp
-conda env create
+conda create --name isce2grimp --file conda-linux.lock
 conda activate isce2grimp
+pip install -e .
 ```
 
 ## Run
