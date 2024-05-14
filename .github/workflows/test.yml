@@ -40,4 +40,4 @@ jobs:
         run: update_inventory
 
       - name: Run PyTest
-        run: poetry run pytest -o markers=network
+        run: pytest -o markers=network
