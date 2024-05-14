@@ -30,11 +30,12 @@ jobs:
           CACHE_NUMBER: 2024-05-13
         with:
           path: isce2grimp/data/asf_inventory.gpkg
+          save-always: true
           key:
             inventory-${{ env.CACHE_NUMBER }}
 
       - name: Install ISCE2GrIMP
-        run: pip install .
+        run: pip install ".[dev]"
 
       - name: Update Sentinel1 Inventory
         run: update_inventory
