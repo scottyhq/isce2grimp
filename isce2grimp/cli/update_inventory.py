@@ -73,7 +73,7 @@ def convert_dtypes(df):
         df[col] = df[col].astype('int')
     
     for col in dates:
-        df[col] = pd.to_datetime(df[col], format='ISO8601')
+        df[col] = pd.to_datetime(df[col], format='ISO8601', utc=True)
 
     for col in strings:
         df[col] = df[col].astype('string')
