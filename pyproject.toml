@@ -1,15 +1,30 @@
-[tool.poetry]
+[project]
 name = "isce2grimp"
-version = "0.0.1"
+requires-python = ">=3.10"
+dynamic = ["version"]
 description = "InSAR Phase Processing for Greenland Ice Measures Project"
-authors = ["Scott Henderson <scotty@uw.edu>"]
-license = "MIT"
+authors = [{ name="Scott Henderson", email="author@example.com" }]
+license = {text = "MIT License"}
 readme = "README.md"
+keywords = ["SAR","ISCE"]
+dependencies = [
+    "geopandas",
+    # "isce2", # must be installed from conda-forge
+    "numpy",
+    "pyproj",
+    "scipy",
+    ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
+[project.urls]
 homepage = "https://github.com/scottyhq/isce2grimp"
 repository = "https://github.com/scottyhq/isce2grimp"
-keywords = ["SAR","ISCE"]
 
-[tool.poetry.scripts]
+[project.scripts]
 update_inventory = 'isce2grimp.cli.update_inventory:main'
 query_inventory = 'isce2grimp.cli.query_inventory:main'
 prep_pair = 'isce2grimp.cli.prep_pair:main'
@@ -18,12 +33,8 @@ convert_isce = 'isce2grimp.cli.convert_isce:main'
 run_isce = 'isce2grimp.cli.run_isce:main'
 clean_isce = 'isce2grimp.cli.clean_isce:main'
 
-[tool.poetry.dependencies]
-python = "^3.7"
-
-[tool.poetry.dev-dependencies]
-pytest = "^5.3"
-
 [build-system]
-requires = ["poetry>=1.0"]
-build-backend = "poetry.masonry.api"
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]

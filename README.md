@@ -9,7 +9,6 @@ git clone https://github.com/scottyhq/isce2grimp.git
 cd isce2grimp
 conda create --name isce2grimp --file conda-linux.lock
 conda activate isce2grimp
-poetry install
 ```
 
 ## Run
@@ -71,12 +70,12 @@ git checkout -b newfeature
 
 Install development version of current branch
 ```
-poetry install
+pip install -e ".[dev]"
 ```
 
 run tests
 ```
-poetry run pytest -o markers=network
+pytest -o markers=network
 ```
 
 push changes on new branch to github, create a pull request to merge into 'main' branch
