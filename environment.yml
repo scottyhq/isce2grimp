@@ -4,13 +4,8 @@ channels:
 dependencies:
   - python
   - geopandas
-  - isce2=2.5.2
-  - ipython
+  - isce2
   - numpy
-  - pip
-  - poetry
-  - poetry-dynamic-versioning
   - pyproj
   - scipy
-  - pip:
-    - dinosar
+  - pyyaml

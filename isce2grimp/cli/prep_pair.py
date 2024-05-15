@@ -17,8 +17,7 @@ Updated: 07/2021
 """
 import argparse
 import os
-from dinosar.archive import asf
-import dinosar.isce as dice
+import isce2grimp.util.dinosar as dinosar
 import datetime
 import geopandas as gpd
 from pathlib import Path
@@ -69,7 +68,7 @@ def main():
     #print(gf.loc[:,['startTime','orbit']])
 
     print(f"Reading from template file: {inps.template}...")
-    inputDict = dice.read_yaml_template(inps.template)
+    inputDict = dinosar.read_yaml_template(inps.template)
 
     # interferogram naming scheme: TRACK-FRAME-REFABS-SECABS
     intdir = f"{inps.path}-{inps.frame}-{inps.reference}-{inps.secondary}"
@@ -99,10 +98,10 @@ def main():
     inputDict["topsinsar"]["secondary"]["safe"] = inps.secondary_scenes
     inputDict["topsinsar"]["secondary"]["output directory"] = "secondarydir"
     
-    xml = dice.dict2xml(inputDict)
-    dice.write_xml(xml)
+    xml = dinosar.dict2xml(inputDict)
+    dinosar.write_xml(xml)
     # Create a download file
-    asf.write_download_urls(downloadList)
+    dinosar.write_download_urls(downloadList)
     print(f"Generated download-links.txt and topsApp.xml in {intdir}")
 
 

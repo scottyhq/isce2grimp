@@ -17,7 +17,6 @@ print(gf.groupby(['date','platform','orbit']).frameNumber.count())
 import argparse
 import geopandas as gpd
 import pandas as pd
-import os
 import sys
 from isce2grimp.cli.update_inventory import read_all_layers
 from pathlib import Path
@@ -25,7 +24,7 @@ from pathlib import Path
 pd.options.mode.chained_assignment = None  # default='warn'
 
 ROOTDIR = Path(__file__).parent.parent
-INVENTORY = os.path.join(ROOTDIR, 'data', 'asf_inventory.gpkg')
+INVENTORY = Path(ROOTDIR, 'data', 'asf_inventory.gpkg')
 
 def cmdLineParse():
     """Command line parser."""
@@ -59,6 +58,7 @@ def main():
 
     if inps.path:
         print(f'Reading {INVENTORY} for relative orbit {inps.path}...')
+        # Layer as integer seems to correctly parse datetimes?...
         gf = gpd.read_file(INVENTORY, layer=str(inps.path))
         print(len(gf),'acquisitions in inventory')
         print(len(gf.orbit.unique()),'orbits')
@@ -76,8 +76,8 @@ def main():
         gf = gf.query('frameNumber == @inps.frame')
 
     # convert dtypes
-    gf['date'] = gf.startTime.str[:10]
-    gf['startTime'] = pd.to_datetime(gf.startTime)
+    print(gf.startTime)
+    gf['date'] = gf.startTime.dt.date
 
     if inps.start:
         gf = gf.query('startTime >= @inps.start')

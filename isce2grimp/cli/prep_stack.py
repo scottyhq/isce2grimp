@@ -12,7 +12,7 @@ $ prep_stack -p 83 -f 374 -r 39530 -n 1
 Author: Scott Henderson (scottyh@uw.edu)
 Updated: 07/2021
 """
-import dinosar.isce as dice
+import isce2grimp.util.dinosar as dinosar
 import argparse
 import geopandas as gpd
 import pandas as pd
@@ -84,7 +84,7 @@ def create_proc_dir(gf, inps):
     # interferogram naming scheme: TRACK-FRAME-REFABS-SECABS
     intdir = f"{inps.path}-{inps.frame}-{inps.reference}-{inps.secondary}"
 
-    inputDict = dice.read_yaml_template(inps.template)
+    inputDict = dinosar.read_yaml_template(inps.template)
 
     if os.path.isdir(intdir):
         print(f'{intdir} already exists, remove it and rerun if you really want to')
@@ -105,8 +105,8 @@ def create_proc_dir(gf, inps):
     inputDict["topsinsar"]["secondary"]["safe"] = inps.secondary_scenes
     inputDict["topsinsar"]["secondary"]["output directory"] = "secondarydir"
 
-    xml = dice.dict2xml(inputDict)
-    dice.write_xml(xml)
+    xml = dinosar.dict2xml(inputDict)
+    dinosar.write_xml(xml)
 
     os.chdir('../')
 
