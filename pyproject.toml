@@ -13,7 +13,7 @@ dependencies = [
     "numpy",
     "pyproj",
     "scipy",
-    "yaml",
+    "pyyaml",
     ]
 
 [project.optional-dependencies]
