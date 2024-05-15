@@ -4,18 +4,15 @@ Download json inventory for ASF Sentinel-1 archive with greenland.geojson
 
 Usage: ./get_asf_inventory.py
 '''
-import argparse
 import requests
-from datetime import datetime
 import geopandas as gpd
 import pandas as pd
 import fiona
-import os
 from pathlib import Path
 
 ROOTDIR = Path(__file__).parent.parent
-INVENTORY = os.path.join(ROOTDIR, 'data', 'asf_inventory.gpkg')
-TODAY = str(datetime.today())
+INVENTORY = Path(ROOTDIR, 'data', 'asf_inventory.gpkg')
+TODAY = str(str(pd.Timestamp.today()))
 
 #print(f"Updating {INVENTORY} through {TODAY}")
 
@@ -33,7 +30,7 @@ def query_asf(
     NOTE: 15 minute time limit on running Search API queries
     """
     print(f"Querying ASF Vertex between {start} and {stop}...")
-    gf = gpd.read_file(os.path.join(ROOTDIR,'data','greenland.json'))
+    gf = gpd.read_file(Path(ROOTDIR,'data','greenland.json'))
     polygonWKT = gf.geometry[0].wkt
 
     baseurl = "https://api.daac.asf.alaska.edu/services/search/param"
@@ -71,9 +68,10 @@ def convert_dtypes(df):
 
     for col in ints:
         df[col] = df[col].astype('int')
-    
+
     for col in dates:
-        df[col] = pd.to_datetime(df[col], format='ISO8601', utc=True)
+        # deal with inhomogeneous formatting drop tzinfo (but all are UTC), keep only second precision
+        df[col] = pd.to_datetime(df[col], format='ISO8601', utc=True).dt.tz_localize(None).astype('datetime64[s]')
 
     for col in strings:
         df[col] = df[col].astype('string')
@@ -121,7 +119,7 @@ def get_last_date(path):
 
 def write_layers(gf):
     ''' write each relative orbit as a separate layer'''
-    if os.path.isfile(INVENTORY):
+    if Path(INVENTORY).is_file():
         layers = fiona.listlayers(INVENTORY)
     else:
         layers = []
@@ -165,9 +163,9 @@ def update_inventory(start, end):
 def main():
     ''' create greenland inventory file '''
     # For initial inventory creation loop over years
-    if not os.path.isfile(INVENTORY):
+    if not Path(INVENTORY).exists():
         update_inventory('2014-01-01', '2015-01-01') 
-        end_range = datetime.today() + pd.Timedelta(365, 'days')
+        end_range = pd.Timestamp.today() + pd.Timedelta(365, 'days')
         years = pd.date_range('2016-01-01', end_range, freq='YS')
         for end in years:
             start = get_last_date_layered(INVENTORY)
