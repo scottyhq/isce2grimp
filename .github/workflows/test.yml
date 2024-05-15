@@ -43,7 +43,7 @@ jobs:
       - name: Diagnositics
         run: | 
             pwd
-            ls -ltrh *
+            ls -ltrh */*
 
       - name: Run PyTest
         run: pytest -o markers=network

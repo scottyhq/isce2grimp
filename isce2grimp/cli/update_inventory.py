@@ -14,7 +14,7 @@ ROOTDIR = Path(__file__).parent.parent
 INVENTORY = Path(ROOTDIR, 'data', 'asf_inventory.gpkg')
 TODAY = str(str(pd.Timestamp.today()))
 
-#print(f"Updating {INVENTORY} through {TODAY}")
+print(f"Updating {INVENTORY} through {TODAY}")
 
 def query_asf(
     sat="Sentinel-1",
