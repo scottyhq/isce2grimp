@@ -5,7 +5,7 @@ dependencies:
   - python
   - geopandas
   - isce2
-  - ipython
   - numpy
   - pyproj
   - scipy
+  - pyyaml
