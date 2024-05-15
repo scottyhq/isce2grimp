@@ -29,7 +29,7 @@ jobs:
         env:
           CACHE_NUMBER: 2024-05-13
         with:
-          path: isce2grimp/data/asf_inventory.gpkg
+          path: ./isce2grimp/data/asf_inventory.gpkg
           save-always: true
           key:
             inventory-${{ env.CACHE_NUMBER }}
@@ -39,6 +39,11 @@ jobs:
 
       - name: Update Sentinel1 Inventory
         run: update_inventory
+
+      - name: Diagnositics
+        run: | 
+            pwd
+            ls -ltrh *
 
       - name: Run PyTest
         run: pytest -o markers=network
