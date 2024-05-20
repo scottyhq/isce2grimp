@@ -13,8 +13,8 @@
 version: 1
 metadata:
   content_hash:
-    osx-64: 182e48750b44162ecc8e597e1e9b36f1c89f2bb9c3a54e2bce885a99a9147e90
-    linux-64: 7ddbaffea8f03345c7907837671a465657f705d5f1bcab5f0d6b521058bed7c7
+    osx-64: c18e2b737f65527ec365c98da46e68f377eef9ab796bcc385c98b299bbe62600
+    linux-64: 72bda33fcf19e7cb4f516fce6ad2da593429adfce8bd712523f1a7ea549bd65d
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -3958,6 +3958,34 @@ package:
     sha256: f99261dcd89fce8840303febff07ee1321b303525fe042eac2592808d9730c48
   category: main
   optional: false
+- name: pip
+  version: '24.0'
+  manager: conda
+  platform: linux-64
+  dependencies:
+    python: '>=3.7'
+    setuptools: ''
+    wheel: ''
+  url: https://conda.anaconda.org/conda-forge/noarch/pip-24.0-pyhd8ed1ab_0.conda
+  hash:
+    md5: f586ac1e56c8638b64f9c8122a7b8a67
+    sha256: b7c1c5d8f13e8cb491c4bd1d0d1896a4cf80fc47de01059ad77509112b664a4a
+  category: main
+  optional: false
+- name: pip
+  version: '24.0'
+  manager: conda
+  platform: osx-64
+  dependencies:
+    setuptools: ''
+    wheel: ''
+    python: '>=3.7'
+  url: https://conda.anaconda.org/conda-forge/noarch/pip-24.0-pyhd8ed1ab_0.conda
+  hash:
+    md5: f586ac1e56c8638b64f9c8122a7b8a67
+    sha256: b7c1c5d8f13e8cb491c4bd1d0d1896a4cf80fc47de01059ad77509112b664a4a
+  category: main
+  optional: false
 - name: pixman
   version: 0.43.2
   manager: conda
@@ -5118,6 +5146,30 @@ package:
   hash:
     md5: 08807a87fa7af10754d46f63b368e016
     sha256: d4009dcc9327684d6409706ce17656afbeae690d8522d3c9bc4df57649a352cd
+  category: main
+  optional: false
+- name: wheel
+  version: 0.43.0
+  manager: conda
+  platform: linux-64
+  dependencies:
+    python: '>=3.8'
+  url: https://conda.anaconda.org/conda-forge/noarch/wheel-0.43.0-pyhd8ed1ab_1.conda
+  hash:
+    md5: 0b5293a157c2b5cd513dd1b03d8d3aae
+    sha256: cb318f066afd6fd64619f14c030569faf3f53e6f50abf743b4c865e7d95b96bc
+  category: main
+  optional: false
+- name: wheel
+  version: 0.43.0
+  manager: conda
+  platform: osx-64
+  dependencies:
+    python: '>=3.8'
+  url: https://conda.anaconda.org/conda-forge/noarch/wheel-0.43.0-pyhd8ed1ab_1.conda
+  hash:
+    md5: 0b5293a157c2b5cd513dd1b03d8d3aae
+    sha256: cb318f066afd6fd64619f14c030569faf3f53e6f50abf743b4c865e7d95b96bc
   category: main
   optional: false
 - name: xerces-c

@@ -5,12 +5,20 @@
 
 The software environment can be installed on Intel linux-64 or osx-64 operating systems (no windows or ARM). We recommend using conda-lock to install a reproducible environment (first install conda-lock in your "base" conda environment `conda install conda-lock`):
 
+**Recommended**
 ```
-(or git@github.com:scottyhq/isce2grimp.git)
+# (or if you use ssh-> git@github.com:scottyhq/isce2grimp.git)
 git clone https://github.com/scottyhq/isce2grimp.git
 cd isce2grimp
 conda-lock install -n isce2grimp
 conda activate isce2grimp
+# editable install for development
+python -m pip install -e .
+```
+
+To install a specific version of this code *without* a locked environment you can point to specific GitHub tags:
+```
+pip install git+https://github.com/scottyhq/isce2grimp@0.1.0
 ```
 
 ## Run

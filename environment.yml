@@ -6,6 +6,7 @@ dependencies:
   - geopandas
   - isce2
   - numpy
+  - pip
   - pyproj
   - pyyaml
   - rasterio
