@@ -12,8 +12,9 @@ dependencies = [
     # "isce2", # must be installed from conda-forge
     "numpy",
     "pyproj",
-    "scipy",
     "pyyaml",
+    "rasterio",
+    "scipy",
     ]
 
 [project.optional-dependencies]
