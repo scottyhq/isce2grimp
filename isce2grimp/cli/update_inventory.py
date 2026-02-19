@@ -82,8 +82,10 @@ def convert_dtypes(df):
 def asfjson2geopandas(json):
     ''' convert ASF GEOJSON response to GeoDataFrame '''
     gf = gpd.GeoDataFrame.from_features(json)
-    # We don't need these columns for local inventory:
-    drop_cols = ['browse','faradayRotation','insarStackId','offNadirAngle','pointingAngle','centerLat','centerLon']
+    # Guard against future API returning more columns (to match GPKG schema)
+    # https://github.com/scottyhq/isce2grimp/issues/12
+    expected_cols = ['geometry','fileName', 'sceneName', 'beamModeType', 'polarization', 'granuleType', 'orbit', 'processingDate', 'processingLevel', 'url', 'flightDirection', 'bytes', 'fileID', 'pathNumber', 'sensor', 'frameNumber', 'groupID', 'md5sum', 'stopTime', 'platform', 'startTime']
+    drop_cols = set(gf.columns).difference(set(expected_cols))
     gf = gf.drop(columns=drop_cols)
     gf = convert_dtypes(gf)
     gf.sort_values(by='startTime', inplace=True) #ascending head to tail
@@ -164,16 +166,17 @@ def main():
     ''' create greenland inventory file '''
     # For initial inventory creation loop over years
     if not Path(INVENTORY).exists():
+        # create .GPKG with first year
         update_inventory('2014-01-01', '2015-01-01') 
-        end_range = pd.Timestamp.today() + pd.Timedelta(365, 'days')
-        years = pd.date_range('2016-01-01', end_range, freq='YS')
-        for end in years:
-            start = get_last_date_layered(INVENTORY)
-            update_inventory(start, end)
 
-    else:
-        start = get_last_date_layered(INVENTORY)    
-        end = TODAY
+    start = get_last_date_layered(INVENTORY)    
+    end_range = TODAY  
+    # Loop over month at a time to avoid more than 2000 results per search
+    # https://github.com/scottyhq/isce2grimp/issues/15
+    ranges = pd.date_range(start, end_range, freq='1MS')
+
+    for end in ranges:
+        start = get_last_date_layered(INVENTORY)
         update_inventory(start, end)
 
 if __name__ == "__main__":
