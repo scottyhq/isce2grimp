@@ -32,6 +32,32 @@ def cmdLineParse():
     return parser
 
 
+def runTopsApp(cpus=8, endStep='unwrap', startStep=None):
+    """Run topsApp.py in the current directory (no downloading).
+
+    Parameters
+    ----------
+    cpus : int
+        OMP thread count.
+    endStep : str
+        topsApp step to stop after (passed as --end). For the single-unwrap
+        S1 workflow this is 'burstifg' (the fine_interferogram step, which is
+        the last step before mergebursts and runs after the ionosphere step),
+        so azPhaseCorrect does the only merge/filter/unwrap pass.
+    startStep : str or None
+        Optional topsApp step to start from (passed as --start).
+    """
+    steps = ''
+    if startStep is not None:
+        steps += f' --start={startStep}'
+    if endStep is not None:
+        steps += f' --end={endStep}'
+    cmd = (f"OMP_NUM_THREADS={cpus} OMP_PLACES='sockets(1)' "
+           f"nohup topsApp.py{steps}")
+    print(cmd)
+    os.system(cmd)
+
+
 def main():
     """Run as a script with args coming from argparse."""
     parser = cmdLineParse()
@@ -45,9 +71,7 @@ def main():
     print(cmd)
     os.system(cmd)
     print('Running ISCE...')
-    cmd = f"OMP_NUM_THREADS={inps.cpus} OMP_PLACES='sockets(1)' nohup topsApp.py --end=unwrap"
-    print(cmd)
-    os.system(cmd)
+    runTopsApp(cpus=inps.cpus, endStep='unwrap')
 
 
 if __name__ == "__main__":

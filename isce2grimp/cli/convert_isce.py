@@ -83,14 +83,17 @@ def get_frame_number(burstTime, ascNodeTime):
     return frame
 
 
-def get_frames(self):
-    ''' get collection of all bursts used in processing '''
+def get_frames(self, dirname=None):
+    ''' get collection of all bursts used in processing. dirname selects the
+    product directory: default fine_coreg (reference geometry/orbit) or
+    'secondarydir' for the secondary acquisition (secondary orbit/times). '''
     # self is instance of topsApp.TopsInSAR
+    if dirname is None:
+        dirname = self._insar.fineCoregDirname
     frames = []
     for swath in self.catalog['swaths']:
-        referenceProduct = self._insar.loadProduct(os.path.join(
-            self._insar.fineCoregDirname, 'IW{0}.xml'.format(swath)))
-        frames.append(referenceProduct)
+        frames.append(self._insar.loadProduct(os.path.join(
+            dirname, 'IW{0}.xml'.format(swath))))
 
     return frames
 
@@ -299,6 +302,79 @@ state
         f.write(output)
 
 
+def granuleName(safe):
+    ''' Granule id from catalog safe entry (handles str or list; strips .zip). '''
+    if isinstance(safe, (list, tuple)):
+        safe = safe[0]
+    return os.path.basename(str(safe)).split('.zip')[0]
+
+
+def write_geodat_geojson(params, orbit, sensingStart, outdir, imageName,
+                         secondary=False):
+    ''' Write the geodat as GeoJSON, matching utilities.geodatrxa.parseGeojson.
+    GrIMP-side writer built from the same params as write_geodat_config (no
+    nisar code). secondary=True writes geodat{NR}x{NA}.secondary.geojson using
+    the secondary orbit / secondary granule as ImageName. '''
+    import json
+    from iscesys import DateTimeUtil as DTU
+    svs = orbit._stateVectors
+    positions = [list(sv.getPosition()) for sv in svs]
+    velocities = [list(sv.getVelocity()) for sv in svs]
+    svt0 = DTU.seconds_since_midnight(svs[0].getTime())
+    # ranges (m) and corners ('lat lon') from params
+    r0, rMid, rFar = [float(x) for x in params['ranges'].split()]
+
+    def ll2f(s):
+        a, b = s.split()
+        return float(a), float(b)
+    ll, ul, ur, lr = (ll2f(params['ll']), ll2f(params['ul']),
+                      ll2f(params['ur']), ll2f(params['lr']))
+    clat, clon = ll2f(params['center'])
+    ring = [[c[1], c[0]] for c in (ll, ul, ur, lr, ll)]   # Lon,Lat closed ring
+    hhmmss = sensingStart.strftime('%-H %-M %-S.%f')
+    props = {
+        'ImageName': imageName,
+        'Date': sensingStart.strftime('%Y-%m-%d'),
+        'NominalTime': hhmmss,
+        'CorrectedTime': hhmmss,
+        'NumberRangeLooks': params['rlooks'],
+        'NumberAzimuthLooks': params['alooks'],
+        'MLRangeSize': params['width'],
+        'MLAzimuthSize': params['length'],
+        'PRF': params['prf'],
+        'MLNearRange': r0, 'MLCenterRange': rMid, 'MLFarRange': rFar,
+        'RangeErrorCorrection': 0.0,
+        'LookDirection': params['look_direction'],
+        'PassType': params['passDir'],
+        'CenterLatLon': [clat, clon],
+        'TimeToFirstSLCSample': 0.0, 'SkewOffset': 0.0, 'Squint': 0.0,
+        'EarthRadiusMajor': params['ReMajor'] * 1000.0,
+        'EarthRadiusMinor': params['ReMinor'] * 1000.0,
+        'MLIncidenceCenter': float(params['incidenceMid']),
+        'SpaceCraftAltitude': params['altitude'],
+        'Wavelength': params['wavelength'],
+        'SLCRangePixelSize': params['range_posting'],
+        'SLCAzimuthPixelSize': params['az_posting'],
+        'NumberOfStateVectors': len(svs),
+        'TimeOfFirstStateVector': svt0,
+        'StateVectorInterval': params['sv_dt'],
+        'coordOrder': 'LonLat',
+    }
+    for i, (pos, vel) in enumerate(zip(positions, velocities), start=1):
+        props[f'SV_Pos_{i}'] = pos
+        props[f'SV_Vel_{i}'] = vel
+    feature = {'type': 'Feature', 'properties': props,
+               'geometry': {'type': 'Polygon', 'coordinates': [ring]}}
+    suffix = '.secondary' if secondary else ''
+    outpath = (f"{outdir}/geodat{params['rlooks']}x{params['alooks']}"
+               f"{suffix}.geojson")
+    if os.path.exists(outpath):
+        os.remove(outpath)
+    with open(outpath, 'w') as f:
+        json.dump(feature, f, indent=2)
+    return outpath
+
+
 def copy_outputs(outdir):
     ''' copy select files from isce merged/ directory '''
     print(f'copying files to {outdir}')
@@ -408,6 +484,27 @@ def main():
     if not os.path.isdir(inps.outdir):
         os.makedirs(inps.outdir)
     write_geodat_config(params, inps.outdir)
+    # Primary geodat as GeoJSON (reference orbit + reference granule)
+    write_geodat_geojson(params, orbit, sensingStart, inps.outdir,
+                         granuleName(self.catalog['reference']['safe']))
+    # Secondary geodat: secondary acquisition geometry/orbit from secondarydir,
+    # same multilooked grid dims, secondary granule as ImageName.
+    secFrames = get_frames(self, 'secondarydir')
+    secOrbit = get_merged_orbit(self, secFrames)
+    secStart, secMid, secStop = get_azimuth_info(self, secFrames)
+    secR0, secRmid, secRfar = get_ranges(self, secFrames)
+    sll, slr, sul, sur, scenter = get_corner_coordinates(self, secFrames,
+                                                         secOrbit)
+    secParams = dict(params)
+    secParams['ranges'] = f'{secR0:.6f} {secRmid:.6f} {secRfar:.6f}'
+    secParams['altitude'] = get_altitude(secOrbit, secMid)
+    secParams['incidenceMid'] = f'{get_mid_incidence(secRmid, secMid, secOrbit):.6f}'
+    secParams['passDir'] = secFrames[0].bursts[0].passDirection.lower()
+    (secParams['ll'], secParams['lr'], secParams['ul'],
+     secParams['ur'], secParams['center']) = sll, slr, sul, sur, scenter
+    write_geodat_geojson(secParams, secOrbit, secStart, inps.outdir,
+                         granuleName(self.catalog['secondary']['safe']),
+                         secondary=True)
     copy_outputs(inps.outdir)
 
     if inps.convert is True:
